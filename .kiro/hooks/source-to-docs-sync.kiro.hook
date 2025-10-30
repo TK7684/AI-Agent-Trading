@@ -1,0 +1,27 @@
+{
+  "enabled": true,
+  "name": "Source to Docs Sync",
+  "description": "Monitors all source files (Python, Rust, TypeScript) and configuration files for changes, then prompts the agent to update relevant documentation in README.md or docs folder",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "**/*.py",
+      "**/*.rs",
+      "**/*.ts",
+      "**/*.tsx",
+      "**/Cargo.toml",
+      "**/pyproject.toml",
+      "**/package.json",
+      "**/docker-compose*.yml",
+      "**/Dockerfile*",
+      "**/*.toml",
+      "**/*.yaml",
+      "**/*.yml"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Source code or configuration files have been modified. Please review the changes and update the relevant documentation:\n\n1. Analyze what changed in the source files\n2. Identify which documentation needs updating (README.md, or specific docs in markdown files)\n3. Update the documentation to reflect:\n   - New features or capabilities\n   - Changed APIs or interfaces\n   - Updated configuration options\n   - Modified architecture or dependencies\n   - New commands or usage patterns\n4. Ensure documentation remains accurate, clear, and consistent with the codebase\n\nFocus on keeping documentation synchronized with the actual implementation."
+  }
+}

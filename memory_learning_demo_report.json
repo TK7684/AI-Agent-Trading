@@ -1,0 +1,97 @@
+{
+  "timestamp": "2025-08-27T13:40:40.920968",
+  "total_trades": 200,
+  "pattern_performance": {
+    "pin_bar_reversal": {
+      "total_trades": 133,
+      "win_rate": 0.6466165413533834,
+      "expectancy": 0.8648106909662499,
+      "avg_holding_time_hours": 4.286748652858856,
+      "max_consecutive_losses": 7,
+      "current_weight": 1.0
+    },
+    "breakout_momentum": {
+      "total_trades": 10,
+      "win_rate": 0.3,
+      "expectancy": -0.023546279963685024,
+      "avg_holding_time_hours": 3.1717547547335982,
+      "max_consecutive_losses": 7,
+      "current_weight": 1.0
+    },
+    "support_resistance": {
+      "total_trades": 6,
+      "win_rate": 0.3333333333333333,
+      "expectancy": -0.20208712455451683,
+      "avg_holding_time_hours": 1.7630896255966266,
+      "max_consecutive_losses": 2,
+      "current_weight": 1.0
+    },
+    "divergence_signal": {
+      "total_trades": 51,
+      "win_rate": 0.6470588235294118,
+      "expectancy": 0.6765213406073651,
+      "avg_holding_time_hours": 2.7805762034649986,
+      "max_consecutive_losses": 3,
+      "current_weight": 1.0
+    }
+  },
+  "performance_windows": {
+    "30_days": {
+      "total_trades": 200,
+      "win_rate": 0.62,
+      "expectancy": 0.7403721236126144,
+      "total_pnl": 1628.8579447119434,
+      "sharpe_ratio": 8.080748214738934,
+      "max_drawdown": 9.717243395695249
+    },
+    "60_days": {
+      "total_trades": 200,
+      "win_rate": 0.62,
+      "expectancy": 0.7403721236126144,
+      "total_pnl": 1628.8579447119434,
+      "sharpe_ratio": 8.080748214738934,
+      "max_drawdown": 9.717243395695249
+    },
+    "90_days": {
+      "total_trades": 200,
+      "win_rate": 0.62,
+      "expectancy": 0.7403721236126144,
+      "total_pnl": 1628.8579447119434,
+      "sharpe_ratio": 8.080748214738934,
+      "max_drawdown": 9.717243395695249
+    }
+  },
+  "bandit_statistics": {
+    "pin_bar_reversal": {
+      "avg_reward": 0.8648106909662496,
+      "std_reward": 1.4398607353686974,
+      "total_selections": 133,
+      "confidence_interval": 0.282265735365851
+    },
+    "breakout_momentum": {
+      "avg_reward": -0.02354627996368507,
+      "std_reward": 1.764861181652371,
+      "total_selections": 10,
+      "confidence_interval": 1.029399569316797
+    },
+    "support_resistance": {
+      "avg_reward": -0.20208712455451683,
+      "std_reward": 1.020636936109965,
+      "total_selections": 6,
+      "confidence_interval": 1.3289491295190141
+    },
+    "divergence_signal": {
+      "avg_reward": 0.6765213406073649,
+      "std_reward": 1.3756948980351797,
+      "total_selections": 51,
+      "confidence_interval": 0.45582579087775926
+    }
+  },
+  "system_parameters": {
+    "bandit_algorithm": "ucb1",
+    "epsilon": 0.1,
+    "min_position_multiplier": 0.5,
+    "max_position_multiplier": 2.0,
+    "min_trades_for_adaptation": 5
+  }
+}

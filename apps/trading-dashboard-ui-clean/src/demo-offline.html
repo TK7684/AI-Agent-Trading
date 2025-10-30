@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Offline Functionality Demo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .online { background-color: #d4edda; color: #155724; }
+        .offline { background-color: #f8d7da; color: #721c24; }
+        .limited { background-color: #fff3cd; color: #856404; }
+        .button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .button:hover { background-color: #0056b3; }
+        .button:disabled { 
+            background-color: #6c757d; 
+            cursor: not-allowed; 
+        }
+        .queue-item {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+        }
+        .log {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            max-height: 200px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Trading Dashboard - Offline Functionality Demo</h1>
+    
+    <div id="status" class="status online">
+        🟢 Online - Full functionality available
+    </div>
+    
+    <div id="capabilities">
+        <h3>Current Capabilities:</h3>
+        <ul id="capabilities-list">
+            <li>✅ View Data</li>
+            <li>✅ Modify Settings</li>
+            <li>✅ Execute Trades</li>
+            <li>✅ Background Sync</li>
+        </ul>
+    </div>
+    
+    <div>
+        <h3>Actions:</h3>
+        <button class="button" onclick="simulateOffline()">Simulate Offline</button>
+        <button class="button" onclick="simulateOnline()">Simulate Online</button>
+        <button class="button" onclick="queueTradingAction()">Queue Trading Action</button>
+        <button class="button" onclick="queueConfigAction()">Queue Config Action</button>
+        <button class="button" onclick="clearQueue()">Clear Queue</button>
+        <button class="button" onclick="testServiceWorker()">Test Service Worker</button>
+    </div>
+    
+    <div>
+        <h3>Queued Actions (<span id="queue-count">0</span>):</h3>
+        <div id="queue-list"></div>
+    </div>
+    
+    <div>
+        <h3>Service Worker Status:</h3>
+        <div id="sw-status">Checking...</div>
+    </div>
+    
+    <div>
+        <h3>Storage Usage:</h3>
+        <div id="storage-info">Checking...</div>
+    </div>
+    
+    <div>
+        <h3>Activity Log:</h3>
+        <div id="log" class="log"></div>
+    </div>
+
+    <script>
+        // Mock offline functionality for demo
+        let isOnline = navigator.onLine;
+        let queuedActions = [];
+        let serviceWorkerSupported = 'serviceWorker' in navigator;
+        let serviceWorkerRegistered = false;
+        
+        function log(message) {
+            const logDiv = document.getElementById('log');
+            const timestamp = new Date().toLocaleTimeString();
+            logDiv.innerHTML += `[${timestamp}] ${message}\n`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+        
+        function updateStatus() {
+            const statusDiv = document.getElementById('status');
+            const capabilitiesList = document.getElementById('capabilities-list');
+            
+            if (isOnline) {
+                statusDiv.className = 'status online';
+                statusDiv.innerHTML = '🟢 Online - Full functionality available';
+                capabilitiesList.innerHTML = `
+                    <li>✅ View Data</li>
+                    <li>✅ Modify Settings</li>
+                    <li>✅ Execute Trades</li>
+                    <li>✅ Background Sync</li>
+                `;
+            } else if (serviceWorkerRegistered) {
+                statusDiv.className = 'status limited';
+                statusDiv.innerHTML = '🟡 Offline - Limited functionality (cached data available)';
+                capabilitiesList.innerHTML = `
+                    <li>✅ View Data (cached)</li>
+                    <li>⚠️ Modify Settings (queued)</li>
+                    <li>⚠️ Execute Trades (queued)</li>
+                    <li>✅ Background Sync</li>
+                `;
+            } else {
+                statusDiv.className = 'status offline';
+                statusDiv.innerHTML = '🔴 Offline - Read-only mode';
+                capabilitiesList.innerHTML = `
+                    <li>⚠️ View Data (limited)</li>
+                    <li>❌ Modify Settings</li>
+                    <li>❌ Execute Trades</li>
+                    <li>❌ Background Sync</li>
+                `;
+            }
+        }
+        
+        function updateQueue() {
+            const queueCount = document.getElementById('queue-count');
+            const queueList = document.getElementById('queue-list');
+            
+            queueCount.textContent = queuedActions.length;
+            
+            if (queuedActions.length === 0) {
+                queueList.innerHTML = '<p>No queued actions</p>';
+            } else {
+                queueList.innerHTML = queuedActions.map((action, index) => `
+                    <div class="queue-item">
+                        <strong>${action.type.toUpperCase()}</strong>: ${action.action}
+                        <br><small>Queued at: ${action.timestamp}</small>
+                        <br><small>Data: ${JSON.stringify(action.data)}</small>
+                    </div>
+                `).join('');
+            }
+        }
+        
+        function simulateOffline() {
+            isOnline = false;
+            log('Simulated going offline');
+            updateStatus();
+        }
+        
+        function simulateOnline() {
+            isOnline = true;
+            log('Simulated going online');
+            if (queuedActions.length > 0) {
+                log(`Processing ${queuedActions.length} queued actions...`);
+                setTimeout(() => {
+                    queuedActions.forEach(action => {
+                        log(`Processed: ${action.type} - ${action.action}`);
+                    });
+                    queuedActions = [];
+                    updateQueue();
+                    log('All queued actions processed');
+                }, 1000);
+            }
+            updateStatus();
+        }
+        
+        function queueTradingAction() {
+            const action = {
+                type: 'trade',
+                action: 'buy_btc',
+                data: { symbol: 'BTCUSDT', amount: 0.001, price: 45000 },
+                timestamp: new Date().toLocaleString()
+            };
+            
+            if (isOnline) {
+                log('Executed trading action immediately (online)');
+            } else {
+                queuedActions.push(action);
+                log('Queued trading action for later execution');
+                updateQueue();
+            }
+        }
+        
+        function queueConfigAction() {
+            const action = {
+                type: 'config',
+                action: 'update_risk_limits',
+                data: { maxDailyLoss: 1000, maxDrawdown: 0.05 },
+                timestamp: new Date().toLocaleString()
+            };
+            
+            if (isOnline) {
+                log('Executed config action immediately (online)');
+            } else {
+                queuedActions.push(action);
+                log('Queued config action for later execution');
+                updateQueue();
+            }
+        }
+        
+        function clearQueue() {
+            queuedActions = [];
+            updateQueue();
+            log('Cleared all queued actions');
+        }
+        
+        async function testServiceWorker() {
+            if (!serviceWorkerSupported) {
+                log('Service Worker not supported in this browser');
+                return;
+            }
+            
+            try {
+                log('Attempting to register service worker...');
+                const registration = await navigator.serviceWorker.register('/sw.js');
+                serviceWorkerRegistered = true;
+                log('Service Worker registered successfully');
+                updateStatus();
+                updateServiceWorkerStatus();
+            } catch (error) {
+                log(`Service Worker registration failed: ${error.message}`);
+            }
+        }
+        
+        function updateServiceWorkerStatus() {
+            const swStatus = document.getElementById('sw-status');
+            
+            if (!serviceWorkerSupported) {
+                swStatus.innerHTML = '❌ Not supported';
+            } else if (serviceWorkerRegistered) {
+                swStatus.innerHTML = '✅ Registered and active';
+            } else {
+                swStatus.innerHTML = '⚠️ Supported but not registered';
+            }
+        }
+        
+        async function updateStorageInfo() {
+            const storageInfo = document.getElementById('storage-info');
+            
+            if ('storage' in navigator && 'estimate' in navigator.storage) {
+                try {
+                    const estimate = await navigator.storage.estimate();
+                    const used = estimate.usage || 0;
+                    const total = estimate.quota || 0;
+                    const percentage = total > 0 ? ((used / total) * 100).toFixed(2) : 0;
+                    
+                    storageInfo.innerHTML = `
+                        Used: ${(used / 1024 / 1024).toFixed(2)} MB<br>
+                        Total: ${(total / 1024 / 1024).toFixed(2)} MB<br>
+                        Usage: ${percentage}%
+                    `;
+                } catch (error) {
+                    storageInfo.innerHTML = 'Error getting storage info';
+                }
+            } else {
+                storageInfo.innerHTML = 'Storage API not supported';
+            }
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            log('Demo initialized');
+            updateStatus();
+            updateQueue();
+            updateServiceWorkerStatus();
+            updateStorageInfo();
+            
+            // Listen for actual online/offline events
+            window.addEventListener('online', () => {
+                isOnline = true;
+                log('Actually went online');
+                updateStatus();
+            });
+            
+            window.addEventListener('offline', () => {
+                isOnline = false;
+                log('Actually went offline');
+                updateStatus();
+            });
+        });
+    </script>
+</body>
+</html>

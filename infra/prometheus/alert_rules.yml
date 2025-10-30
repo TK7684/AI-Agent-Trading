@@ -1,0 +1,144 @@
+groups:
+  - name: trading_system_alerts
+    rules:
+      # System health alerts
+      - alert: TradingSystemDown
+        expr: up{job=~"trading-.*"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Trading system component is down"
+          description: "{{ $labels.job }} has been down for more than 1 minute"
+
+      - alert: HighErrorRate
+        expr: rate(trading_errors_total[5m]) > 0.1
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High error rate detected"
+          description: "Error rate is {{ $value }} errors per second"
+
+      # Trading performance alerts
+      - alert: LowWinRate
+        expr: trading_win_rate < 0.4
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Trading win rate is low"
+          description: "Win rate has dropped to {{ $value }}%"
+
+      - alert: HighDrawdown
+        expr: trading_drawdown_percentage > 15
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "High drawdown detected"
+          description: "Current drawdown is {{ $value }}%"
+
+      - alert: SafeModeTriggered
+        expr: trading_safe_mode == 1
+        for: 0s
+        labels:
+          severity: critical
+        annotations:
+          summary: "Trading system in safe mode"
+          description: "Safe mode has been triggered due to risk limits"
+
+      # Latency alerts
+      - alert: HighAnalysisLatency
+        expr: histogram_quantile(0.95, rate(trading_analysis_duration_seconds_bucket[5m])) > 1.0
+        for: 3m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High analysis latency"
+          description: "95th percentile analysis latency is {{ $value }}s"
+
+      - alert: HighLLMLatency
+        expr: histogram_quantile(0.95, rate(llm_request_duration_seconds_bucket[5m])) > 3.0
+        for: 3m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High LLM latency"
+          description: "95th percentile LLM latency is {{ $value }}s"
+
+      # Resource alerts
+      - alert: HighMemoryUsage
+        expr: (container_memory_usage_bytes / container_spec_memory_limit_bytes) > 0.9
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High memory usage"
+          description: "Memory usage is {{ $value }}%"
+
+      - alert: HighCPUUsage
+        expr: rate(container_cpu_usage_seconds_total[5m]) > 0.8
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High CPU usage"
+          description: "CPU usage is {{ $value }}%"
+
+      # Database alerts
+      - alert: DatabaseConnectionsHigh
+        expr: pg_stat_database_numbackends > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High database connections"
+          description: "Database has {{ $value }} active connections"
+
+      - alert: DatabaseSlowQueries
+        expr: rate(pg_stat_database_tup_returned[5m]) / rate(pg_stat_database_tup_fetched[5m]) < 0.1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Database slow queries detected"
+          description: "Query efficiency is low"
+
+      # Exchange connectivity alerts
+      - alert: ExchangeConnectionDown
+        expr: exchange_connection_status == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Exchange connection down"
+          description: "Connection to {{ $labels.exchange }} is down"
+
+      - alert: OrderExecutionFailures
+        expr: rate(order_execution_failures_total[5m]) > 0.05
+        for: 3m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High order execution failure rate"
+          description: "Order execution failure rate is {{ $value }} per second"
+
+      # Cost monitoring alerts
+      - alert: HighLLMCosts
+        expr: increase(llm_cost_usd_total[1h]) > 50
+        for: 0s
+        labels:
+          severity: warning
+        annotations:
+          summary: "High LLM costs"
+          description: "LLM costs in the last hour: ${{ $value }}"
+
+      - alert: MonthlyBudgetExceeded
+        expr: increase(llm_cost_usd_total[30d]) > 1000
+        for: 0s
+        labels:
+          severity: critical
+        annotations:
+          summary: "Monthly LLM budget exceeded"
+          description: "Monthly LLM costs: ${{ $value }}"

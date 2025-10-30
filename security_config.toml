@@ -1,0 +1,61 @@
+# Security Configuration for Autonomous Trading System
+
+[secrets]
+# Secret management configuration
+vault_url = ""  # HashiCorp Vault URL (optional)
+vault_token = ""  # Vault token (optional)
+encryption_key_env = "TRADING_SYSTEM_ENCRYPTION_KEY"
+auto_rotate_days = 90
+
+[rbac]
+# Role-Based Access Control settings
+default_session_timeout = 3600  # 1 hour
+max_failed_logins = 5
+lockout_duration = 900  # 15 minutes
+require_mfa = false
+
+[audit]
+# Audit logging configuration
+log_file = "audit.jsonl"
+max_log_size_mb = 100
+backup_count = 10
+verify_integrity_on_startup = true
+
+[api_security]
+# API security settings
+rate_limit_requests = 100
+rate_limit_window = 60  # seconds
+max_request_size = 1048576  # 1MB
+require_https = true
+allowed_origins = ["https://localhost:3000"]
+
+[compliance]
+# Compliance reporting settings
+default_jurisdiction = "US"
+retention_days = 2555  # 7 years for US
+auto_report_frequency = "daily"
+export_format = "json"
+
+[communication]
+# Inter-service communication security
+token_expiry = 3600  # 1 hour
+signature_algorithm = "HS256"
+timestamp_tolerance = 300  # 5 minutes
+require_tls = true
+min_tls_version = "1.2"
+
+[monitoring]
+# Security monitoring
+log_failed_auth = true
+log_rate_limits = true
+log_suspicious_activity = true
+alert_on_multiple_failures = true
+block_after_failures = 10
+
+[penetration_testing]
+# Security testing configuration
+enable_security_headers = true
+test_sql_injection = true
+test_xss_protection = true
+test_csrf_protection = true
+test_replay_attacks = true

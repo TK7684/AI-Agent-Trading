@@ -1,0 +1,171 @@
+# Default values for trading-system
+replicaCount: 2
+
+image:
+  repository: ghcr.io/your-org/autonomous-trading-system
+  pullPolicy: IfNotPresent
+  tag: "latest"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+# Blue-Green deployment configuration
+deployment:
+  color: blue
+  strategy:
+    type: BlueGreen
+    blueGreen:
+      activeService: trading-system-service
+      previewService: trading-system-preview-service
+      autoPromotionEnabled: false
+      scaleDownDelaySeconds: 30
+      prePromotionAnalysis:
+        templates:
+        - templateName: success-rate
+        args:
+        - name: service-name
+          value: trading-system-preview-service
+      postPromotionAnalysis:
+        templates:
+        - templateName: success-rate
+        args:
+        - name: service-name
+          value: trading-system-service
+
+# Feature flags
+featureFlags:
+  enabled: true
+  provider: configmap
+  configMap:
+    name: trading-feature-flags
+    key: flags.yaml
+
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+
+podAnnotations: {}
+
+podSecurityContext:
+  fsGroup: 2000
+
+securityContext:
+  capabilities:
+    drop:
+    - ALL
+  readOnlyRootFilesystem: true
+  runAsNonRoot: true
+  runAsUser: 1000
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 8080
+
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+  hosts:
+    - host: trading.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: trading-tls
+      hosts:
+        - trading.example.com
+
+resources:
+  limits:
+    cpu: 1000m
+    memory: 2Gi
+  requests:
+    cpu: 500m
+    memory: 1Gi
+
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 80
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity:
+  podAntiAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+    - weight: 100
+      podAffinityTerm:
+        labelSelector:
+          matchExpressions:
+          - key: app.kubernetes.io/name
+            operator: In
+            values:
+            - trading-system
+        topologyKey: kubernetes.io/hostname
+
+# Environment-specific configuration
+environment: development
+
+config:
+  logLevel: INFO
+  database:
+    host: postgresql
+    port: 5432
+    name: trading
+    username: trading
+  redis:
+    host: redis-master
+    port: 6379
+  monitoring:
+    enabled: true
+    prometheus:
+      enabled: true
+      port: 9090
+    grafana:
+      enabled: true
+      port: 3000
+
+# External dependencies
+postgresql:
+  enabled: true
+  auth:
+    postgresPassword: "changeme"
+    username: "trading"
+    password: "changeme"
+    database: "trading"
+  primary:
+    persistence:
+      enabled: true
+      size: 20Gi
+
+redis:
+  enabled: true
+  auth:
+    enabled: false
+  master:
+    persistence:
+      enabled: true
+      size: 8Gi
+
+prometheus:
+  enabled: true
+  server:
+    persistentVolume:
+      enabled: true
+      size: 20Gi
+
+grafana:
+  enabled: true
+  persistence:
+    enabled: true
+    size: 10Gi
+  adminPassword: "admin"

@@ -1,0 +1,25 @@
+{
+  "benchmark_results": {
+    "technical_indicators": [
+      "PerformanceMetrics(operation_name='mock_rsi', total_operations=100, total_time_seconds=0.0004422000056365505, avg_time_ms=0.004422000056365505, min_time_ms=0.0040000013541430235, max_time_ms=0.010700001439545304, p50_time_ms=0.004300000000512227, p95_time_ms=0.005300000339047983, p99_time_ms=0.010700001439545304, operations_per_second=226142.0143042495, memory_usage_mb=0.00390625, cpu_usage_percent=-20.8, error_count=0, error_rate=0.0)",
+      "PerformanceMetrics(operation_name='mock_ema', total_operations=100, total_time_seconds=0.0004200999792374205, avg_time_ms=0.004200999792374205, min_time_ms=0.0037999998312443495, max_time_ms=0.00920000093174167, p50_time_ms=0.0040000013541430235, p95_time_ms=0.004899997293250635, p99_time_ms=0.00920000093174167, operations_per_second=238038.57401165157, memory_usage_mb=0.0, cpu_usage_percent=-14.3, error_count=0, error_rate=0.0)"
+    ],
+    "pattern_recognition": [
+      "PerformanceMetrics(operation_name='mock_support_resistance', total_operations=50, total_time_seconds=0.00029030000587226823, avg_time_ms=0.005806000117445365, min_time_ms=0.005099998816149309, max_time_ms=0.011600001016631722, p50_time_ms=0.00549999822396785, p95_time_ms=0.009700001101009548, p99_time_ms=0.011600001016631722, operations_per_second=172235.6148418404, memory_usage_mb=0.0, cpu_usage_percent=-40.7, error_count=0, error_rate=0.0)",
+      "PerformanceMetrics(operation_name='mock_breakout_detection', total_operations=50, total_time_seconds=0.0002879999992728699, avg_time_ms=0.005759999985457398, min_time_ms=0.005100002454128116, max_time_ms=0.01179999890155159, p50_time_ms=0.005599998985417187, p95_time_ms=0.006300000677583739, p99_time_ms=0.01179999890155159, operations_per_second=173611.11154943702, memory_usage_mb=0.0, cpu_usage_percent=-20.0, error_count=0, error_rate=0.0)"
+    ],
+    "market_data": [
+      "PerformanceMetrics(operation_name='simulate_data_fetch', total_operations=1000, total_time_seconds=1.5665373999836447, avg_time_ms=1.5665373999836447, min_time_ms=1.027599999360973, max_time_ms=2.568200001405785, p50_time_ms=1.564199999847915, p95_time_ms=1.8061000009765849, p99_time_ms=2.069300000584917, operations_per_second=638.3505430578551, memory_usage_mb=-1.66015625, cpu_usage_percent=-32.0, error_count=0, error_rate=0.0)",
+      "PerformanceMetrics(operation_name='simulate_data_processing', total_operations=500, total_time_seconds=0.004696900025010109, avg_time_ms=0.009393800050020218, min_time_ms=0.008199996955227107, max_time_ms=0.029400001949397847, p50_time_ms=0.008899998647393659, p95_time_ms=0.013500000932253897, p99_time_ms=0.015699999494245276, operations_per_second=106453.19196440079, memory_usage_mb=0.0390625, cpu_usage_percent=-13.3, error_count=0, error_rate=0.0)"
+    ]
+  },
+  "load_results": [
+    "BenchmarkResult(test_name='load_test_dummy_analysis', config=LoadTestConfig(concurrent_users=10, operations_per_user=100, ramp_up_time_seconds=10, test_duration_seconds=60, symbols=['BTCUSD', 'ETHUSD'], timeframes=['1m', '5m', '1h']), metrics=[PerformanceMetrics(operation_name='dummy_analysis', total_operations=1000, total_time_seconds=13.750348, avg_time_ms=10.3021101000013, min_time_ms=10.027500000433065, max_time_ms=11.128200003440725, p50_time_ms=10.292100001606741, p95_time_ms=10.602400001516799, p99_time_ms=10.81759999942733, operations_per_second=72.72543211269998, memory_usage_mb=0.015625, cpu_usage_percent=-10.9, error_count=0, error_rate=0.0)], system_metrics={'initial_memory_mb': 116.85546875, 'final_memory_mb': 116.87109375, 'memory_delta_mb': 0.015625, 'initial_cpu_percent': 19.3, 'final_cpu_percent': 8.4, 'cpu_delta_percent': -10.9, 'total_errors': 0, 'error_samples': []}, start_time=datetime.datetime(2025, 8, 28, 7, 7, 25, 93262), end_time=datetime.datetime(2025, 8, 28, 7, 7, 38, 843610), total_duration_seconds=13.750348)",
+    "BenchmarkResult(test_name='load_test_dummy_analysis', config=LoadTestConfig(concurrent_users=50, operations_per_user=50, ramp_up_time_seconds=30, test_duration_seconds=120, symbols=['BTCUSD', 'ETHUSD', 'ADAUSD'], timeframes=['1m', '5m', '15m', '1h']), metrics=[PerformanceMetrics(operation_name='dummy_analysis', total_operations=2500, total_time_seconds=32.734769, avg_time_ms=10.300882119980816, min_time_ms=10.024500003055437, max_time_ms=11.535800000274321, p50_time_ms=10.292949998984113, p95_time_ms=10.596199997962685, p99_time_ms=10.780999997223262, operations_per_second=76.37139580853618, memory_usage_mb=-0.140625, cpu_usage_percent=-0.40000000000000036, error_count=0, error_rate=0.0)], system_metrics={'initial_memory_mb': 116.94140625, 'final_memory_mb': 116.80078125, 'memory_delta_mb': -0.140625, 'initial_cpu_percent': 7.4, 'final_cpu_percent': 7.0, 'cpu_delta_percent': -0.40000000000000036, 'total_errors': 0, 'error_samples': []}, start_time=datetime.datetime(2025, 8, 28, 7, 7, 38, 846580), end_time=datetime.datetime(2025, 8, 28, 7, 8, 11, 581349), total_duration_seconds=32.734769)"
+  ],
+  "validation_results": {
+    "technical_indicators": true,
+    "pattern_recognition": true,
+    "market_data": true
+  }
+}

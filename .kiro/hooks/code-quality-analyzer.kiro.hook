@@ -1,0 +1,21 @@
+{
+  "enabled": true,
+  "name": "Code Quality Analyzer",
+  "description": "Monitors source code files for changes and provides intelligent suggestions for code improvements, including identifying code smells, recommending design patterns, and highlighting best practices for readability, maintainability, and performance",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "**/*.py",
+      "**/*.rs",
+      "**/*.ts",
+      "**/*.tsx",
+      "**/*.js",
+      "**/*.jsx"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Analyze the modified code files for potential improvements. Focus on:\n\n1. **Code Smells**: Identify anti-patterns, duplicated code, long methods/functions, complex conditionals, and poor naming\n2. **Design Patterns**: Suggest appropriate design patterns that could improve the code structure\n3. **Best Practices**: Check for language-specific best practices (Python PEP 8, Rust idioms, TypeScript/React patterns)\n4. **Readability**: Evaluate code clarity, documentation, and maintainability\n5. **Performance**: Identify potential performance bottlenecks and optimization opportunities\n6. **Security**: Flag potential security issues or vulnerabilities\n7. **Testing**: Suggest areas that need better test coverage\n\nFor each file changed, provide:\n- Specific line numbers or code sections that need attention\n- Clear explanation of the issue\n- Concrete suggestions for improvement with code examples where helpful\n- Priority level (Critical, High, Medium, Low)\n\nMaintain the existing functionality - only suggest improvements, not breaking changes. Be constructive and educational in your feedback."
+  }
+}

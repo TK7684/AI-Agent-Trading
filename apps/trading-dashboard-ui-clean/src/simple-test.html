@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>API Test</title>
+</head>
+<body>
+    <h1>API Connection Test</h1>
+    <button onclick="testLogin()">Test Login</button>
+    <button onclick="testHealth()">Test Health</button>
+    <div id="results"></div>
+
+    <script>
+        async function testLogin() {
+            try {
+                const response = await fetch('http://localhost:8000/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: 'test@example.com',
+                        password: 'password123'
+                    })
+                });
+                
+                const data = await response.json();
+                document.getElementById('results').innerHTML = '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+                
+                // Test authenticated endpoint
+                if (data.token) {
+                    const healthResponse = await fetch('http://localhost:8000/system/health', {
+                        headers: {
+                            'Authorization': `Bearer ${data.token}`
+                        }
+                    });
+                    const healthData = await healthResponse.json();
+                    document.getElementById('results').innerHTML += '<h3>Health Data:</h3><pre>' + JSON.stringify(healthData, null, 2) + '</pre>';
+                }
+            } catch (error) {
+                document.getElementById('results').innerHTML = 'Error: ' + error.message;
+            }
+        }
+
+        async function testHealth() {
+            try {
+                const response = await fetch('http://localhost:8000/system/health');
+                const data = await response.json();
+                document.getElementById('results').innerHTML = '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+            } catch (error) {
+                document.getElementById('results').innerHTML = 'Error: ' + error.message;
+            }
+        }
+    </script>
+</body>
+</html>

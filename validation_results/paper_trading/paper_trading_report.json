@@ -1,0 +1,48 @@
+{
+  "config": {
+    "initial_capital": 100000.0,
+    "max_positions": 3,
+    "commission_rate": 0.001,
+    "slippage_bps": 2,
+    "symbols": [
+      "BTCUSD"
+    ],
+    "timeframes": [
+      "1m"
+    ],
+    "session_duration_days": 0.041666666666666664,
+    "risk_per_trade": 0.02,
+    "max_daily_loss": 0.05
+  },
+  "metrics": {
+    "session_start": "2025-08-28T07:08:12.044026",
+    "current_capital": 100000.0,
+    "total_pnl": 0.0,
+    "realized_pnl": 0,
+    "unrealized_pnl": 0,
+    "total_trades": 0,
+    "winning_trades": 0,
+    "losing_trades": 0,
+    "win_rate": 0,
+    "largest_win": 0,
+    "largest_loss": 0,
+    "max_drawdown": 0.0,
+    "current_drawdown": 0.0,
+    "daily_pnl": 0.0,
+    "positions_count": 0
+  },
+  "completed_trades": [],
+  "equity_history": [
+    {
+      "timestamp": "2025-08-28T07:08:12.044469",
+      "total_equity": 100000.0,
+      "cash": 100000.0,
+      "unrealized_pnl": 0,
+      "positions_count": 0,
+      "current_drawdown": 0.0,
+      "daily_pnl": 0.0
+    }
+  ],
+  "session_duration": 30.007755,
+  "generated_at": "2025-08-28T07:08:42.051790"
+}

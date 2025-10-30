@@ -1,0 +1,105 @@
+server:
+  http_listen_port: 9080
+  grpc_listen_port: 0
+
+positions:
+  filename: /tmp/positions.yaml
+
+clients:
+  - url: http://loki:3100/loki/api/v1/push
+
+scrape_configs:
+  - job_name: trading-system
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: trading-system
+          __path__: /var/log/trading/*.log
+    pipeline_stages:
+      - json:
+          expressions:
+            timestamp: timestamp
+            level: level
+            message: message
+            component: component
+            trade_id: trade_id
+            symbol: symbol
+      - timestamp:
+          source: timestamp
+          format: RFC3339
+      - labels:
+          level:
+          component:
+          trade_id:
+          symbol:
+
+  - job_name: orchestrator
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: orchestrator
+          component: orchestrator
+          __path__: /var/log/trading/orchestrator*.log
+    pipeline_stages:
+      - json:
+          expressions:
+            timestamp: timestamp
+            level: level
+            message: message
+            decision_id: decision_id
+            timeframe: timeframe
+      - timestamp:
+          source: timestamp
+          format: RFC3339
+      - labels:
+          level:
+          decision_id:
+          timeframe:
+
+  - job_name: execution-gateway
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: execution-gateway
+          component: execution-gateway
+          __path__: /var/log/trading/execution*.log
+    pipeline_stages:
+      - json:
+          expressions:
+            timestamp: timestamp
+            level: level
+            message: message
+            order_id: order_id
+            exchange: exchange
+      - timestamp:
+          source: timestamp
+          format: RFC3339
+      - labels:
+          level:
+          order_id:
+          exchange:
+
+  - job_name: monitoring
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: monitoring
+          component: monitoring
+          __path__: /var/log/trading/monitoring*.log
+    pipeline_stages:
+      - json:
+          expressions:
+            timestamp: timestamp
+            level: level
+            message: message
+            metric_name: metric_name
+      - timestamp:
+          source: timestamp
+          format: RFC3339
+      - labels:
+          level:
+          metric_name:

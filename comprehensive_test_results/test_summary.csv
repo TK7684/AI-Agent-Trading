@@ -1,0 +1,2 @@
+timestamp,overall_score,system_health_status,performance_score,code_quality_score,security_score,integration_score,critical_issues_count
+2025-10-28T14:52:04.422935,54.8,HEALTHY,0,80,55,25.0,2

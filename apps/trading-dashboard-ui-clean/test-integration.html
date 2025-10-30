@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Backend Integration Test</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-result {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 4px;
+            border-left: 4px solid #ccc;
+        }
+        .success {
+            background-color: #d4edda;
+            border-left-color: #28a745;
+            color: #155724;
+        }
+        .error {
+            background-color: #f8d7da;
+            border-left-color: #dc3545;
+            color: #721c24;
+        }
+        .pending {
+            background-color: #fff3cd;
+            border-left-color: #ffc107;
+            color: #856404;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        button:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+        }
+        pre {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-size: 12px;
+        }
+        .config-info {
+            background-color: #e9ecef;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔗 Backend Integration Test</h1>
+        
+        <div class="config-info">
+            <h3>Configuration</h3>
+            <div id="config-display">Loading configuration...</div>
+        </div>
+        
+        <button id="run-test" onclick="runTest()">Run Integration Test</button>
+        
+        <div id="test-results">
+            <h3>Test Results</h3>
+            <div id="results-container">
+                Click "Run Integration Test" to start testing the backend connection.
+            </div>
+        </div>
+        
+        <div id="detailed-results" style="display: none;">
+            <h3>Detailed Results</h3>
+            <pre id="detailed-output"></pre>
+        </div>
+    </div>
+
+    <script type="module">
+        // Display configuration
+        const config = {
+            apiBaseUrl: 'http://127.0.0.1:8000',
+            wsBaseUrl: 'ws://127.0.0.1:8000',
+            environment: 'development',
+            authEnabled: true,
+            debugMode: true
+        };
+        
+        document.getElementById('config-display').innerHTML = `
+            <div><strong>API Base URL:</strong> ${config.apiBaseUrl}</div>
+            <div><strong>WebSocket Base URL:</strong> ${config.wsBaseUrl}</div>
+            <div><strong>Environment:</strong> ${config.environment}</div>
+            <div><strong>Auth Enabled:</strong> ${config.authEnabled}</div>
+            <div><strong>Debug Mode:</strong> ${config.debugMode}</div>
+        `;
+
+        // Test functions
+        async function testHealthEndpoint() {
+            const response = await fetch(`${config.apiBaseUrl}/system/health`);
+            const data = await response.json();
+            return { success: response.ok, data };
+        }
+
+        async function testAuthentication() {
+            const response = await fetch(`${config.apiBaseUrl}/auth/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email: 'test@example.com',
+                    password: 'password123'
+                })
+            });
+            const data = await response.json();
+            return { success: response.ok, data };
+        }
+
+        async function testAuthenticatedEndpoint(token, endpoint) {
+            const response = await fetch(`${config.apiBaseUrl}${endpoint}`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await response.json();
+            return { success: response.ok, data };
+        }
+
+        function addTestResult(name, status, message, data = null) {
+            const container = document.getElementById('results-container');
+            const div = document.createElement('div');
+            div.className = `test-result ${status}`;
+            
+            let icon = status === 'success' ? '✅' : status === 'error' ? '❌' : '⏳';
+            div.innerHTML = `
+                <strong>${icon} ${name}</strong><br>
+                ${message}
+                ${data ? `<details><summary>View Data</summary><pre>${JSON.stringify(data, null, 2)}</pre></details>` : ''}
+            `;
+            
+            container.appendChild(div);
+        }
+
+        window.runTest = async function() {
+            const button = document.getElementById('run-test');
+            const container = document.getElementById('results-container');
+            const detailedResults = document.getElementById('detailed-results');
+            const detailedOutput = document.getElementById('detailed-output');
+            
+            button.disabled = true;
+            button.textContent = 'Running Tests...';
+            container.innerHTML = '';
+            detailedResults.style.display = 'none';
+            
+            const results = [];
+            let token = null;
+
+            try {
+                // Test 1: Health Endpoint
+                addTestResult('Health Endpoint', 'pending', 'Testing API connection...');
+                const healthResult = await testHealthEndpoint();
+                if (healthResult.success) {
+                    addTestResult('Health Endpoint', 'success', 'API connection successful', healthResult.data);
+                    results.push({ test: 'health', success: true, data: healthResult.data });
+                } else {
+                    addTestResult('Health Endpoint', 'error', 'API connection failed');
+                    results.push({ test: 'health', success: false });
+                }
+
+                // Test 2: Authentication
+                addTestResult('Authentication', 'pending', 'Testing login...');
+                const authResult = await testAuthentication();
+                if (authResult.success && authResult.data.token) {
+                    token = authResult.data.token;
+                    addTestResult('Authentication', 'success', 'Login successful', { hasToken: true, hasRefreshToken: !!authResult.data.refreshToken });
+                    results.push({ test: 'auth', success: true, data: authResult.data });
+                } else {
+                    addTestResult('Authentication', 'error', 'Login failed');
+                    results.push({ test: 'auth', success: false });
+                }
+
+                // Test authenticated endpoints only if auth succeeded
+                if (token) {
+                    // Test 3: Performance Metrics
+                    addTestResult('Performance Metrics', 'pending', 'Testing performance API...');
+                    const perfResult = await testAuthenticatedEndpoint(token, '/trading/performance');
+                    if (perfResult.success) {
+                        addTestResult('Performance Metrics', 'success', 'Performance data retrieved', perfResult.data);
+                        results.push({ test: 'performance', success: true, data: perfResult.data });
+                    } else {
+                        addTestResult('Performance Metrics', 'error', 'Performance API failed');
+                        results.push({ test: 'performance', success: false });
+                    }
+
+                    // Test 4: Agent Status
+                    addTestResult('Agent Status', 'pending', 'Testing agent API...');
+                    const agentResult = await testAuthenticatedEndpoint(token, '/system/agents');
+                    if (agentResult.success) {
+                        addTestResult('Agent Status', 'success', 'Agent status retrieved', agentResult.data);
+                        results.push({ test: 'agent', success: true, data: agentResult.data });
+                    } else {
+                        addTestResult('Agent Status', 'error', 'Agent API failed');
+                        results.push({ test: 'agent', success: false });
+                    }
+
+                    // Test 5: Trading Trades
+                    addTestResult('Trading Trades', 'pending', 'Testing trades API...');
+                    const tradesResult = await testAuthenticatedEndpoint(token, '/trading/trades');
+                    if (tradesResult.success) {
+                        addTestResult('Trading Trades', 'success', 'Trading data retrieved', tradesResult.data);
+                        results.push({ test: 'trades', success: true, data: tradesResult.data });
+                    } else {
+                        addTestResult('Trading Trades', 'error', 'Trading API failed');
+                        results.push({ test: 'trades', success: false });
+                    }
+                } else {
+                    addTestResult('Performance Metrics', 'error', 'Skipped - Authentication required');
+                    addTestResult('Agent Status', 'error', 'Skipped - Authentication required');
+                    addTestResult('Trading Trades', 'error', 'Skipped - Authentication required');
+                }
+
+                // Show detailed results
+                detailedOutput.textContent = JSON.stringify(results, null, 2);
+                detailedResults.style.display = 'block';
+
+                // Summary
+                const successCount = results.filter(r => r.success).length;
+                const totalCount = results.length;
+                
+                if (successCount === totalCount) {
+                    addTestResult('Summary', 'success', `All ${totalCount} tests passed! 🎉`);
+                } else {
+                    addTestResult('Summary', 'error', `${successCount}/${totalCount} tests passed`);
+                }
+
+            } catch (error) {
+                addTestResult('Test Execution', 'error', `Test execution failed: ${error.message}`);
+                detailedOutput.textContent = error.stack;
+                detailedResults.style.display = 'block';
+            } finally {
+                button.disabled = false;
+                button.textContent = 'Run Integration Test';
+            }
+        };
+    </script>
+</body>
+</html>

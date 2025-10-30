@@ -1,0 +1,222 @@
+{
+  "summary": {
+    "total_benchmark_categories": 3,
+    "total_operations_tested": 1800,
+    "average_latency_ms": 0.27787461644766154,
+    "maximum_latency_ms": 3.0046000028960407,
+    "average_ops_per_second": 96851.12171847092,
+    "all_validations_passed": true
+  },
+  "benchmark_results": {
+    "technical_indicators": [
+      {
+        "operation_name": "mock_rsi",
+        "total_operations": 100,
+        "total_time_seconds": 0.0009880999568849802,
+        "avg_time_ms": 0.009880999568849802,
+        "min_time_ms": 0.005999987479299307,
+        "max_time_ms": 0.04890000855084509,
+        "p50_time_ms": 0.008100003469735384,
+        "p95_time_ms": 0.02540000423323363,
+        "p99_time_ms": 0.04890000855084509,
+        "operations_per_second": 101204.33596136722,
+        "memory_usage_mb": 0.0,
+        "cpu_usage_percent": 31.299999999999997,
+        "error_count": 0,
+        "error_rate": 0.0
+      },
+      {
+        "operation_name": "mock_ema",
+        "total_operations": 100,
+        "total_time_seconds": 0.0006336000224109739,
+        "avg_time_ms": 0.006336000224109739,
+        "min_time_ms": 0.006099988240748644,
+        "max_time_ms": 0.01720000000204891,
+        "p50_time_ms": 0.006200003554113209,
+        "p95_time_ms": 0.006599992047995329,
+        "p99_time_ms": 0.01720000000204891,
+        "operations_per_second": 157828.27724576168,
+        "memory_usage_mb": 0.0,
+        "cpu_usage_percent": -64.9,
+        "error_count": 0,
+        "error_rate": 0.0
+      }
+    ],
+    "pattern_recognition": [
+      {
+        "operation_name": "mock_support_resistance",
+        "total_operations": 50,
+        "total_time_seconds": 0.00041289994260296226,
+        "avg_time_ms": 0.008257998852059245,
+        "min_time_ms": 0.007299997378140688,
+        "max_time_ms": 0.029999995604157448,
+        "p50_time_ms": 0.007700000423938036,
+        "p95_time_ms": 0.008399991202168167,
+        "p99_time_ms": 0.029999995604157448,
+        "operations_per_second": 121094.71288563285,
+        "memory_usage_mb": 0.0,
+        "cpu_usage_percent": -43.8,
+        "error_count": 0,
+        "error_rate": 0.0
+      },
+      {
+        "operation_name": "mock_breakout_detection",
+        "total_operations": 50,
+        "total_time_seconds": 0.0004089000140083954,
+        "avg_time_ms": 0.008178000280167907,
+        "min_time_ms": 0.007199996616691351,
+        "max_time_ms": 0.020799998310394585,
+        "p50_time_ms": 0.007599999662488699,
+        "p95_time_ms": 0.009200011845678091,
+        "p99_time_ms": 0.020799998310394585,
+        "operations_per_second": 122279.28169983732,
+        "memory_usage_mb": 0.0,
+        "cpu_usage_percent": -40.0,
+        "error_count": 0,
+        "error_rate": 0.0
+      }
+    ],
+    "market_data": [
+      {
+        "operation_name": "simulate_data_fetch",
+        "total_operations": 1000,
+        "total_time_seconds": 1.6217878999159439,
+        "avg_time_ms": 1.6217878999159439,
+        "min_time_ms": 1.098900000215508,
+        "max_time_ms": 3.0046000028960407,
+        "p50_time_ms": 1.6353000100934878,
+        "p95_time_ms": 2.013799996348098,
+        "p99_time_ms": 2.40759999724105,
+        "operations_per_second": 616.6034412094389,
+        "memory_usage_mb": 0.0,
+        "cpu_usage_percent": -4.600000000000001,
+        "error_count": 0,
+        "error_rate": 0.0
+      },
+      {
+        "operation_name": "simulate_data_processing",
+        "total_operations": 500,
+        "total_time_seconds": 0.006403399922419339,
+        "avg_time_ms": 0.012806799844838679,
+        "min_time_ms": 0.012299991794861853,
+        "max_time_ms": 0.046200002543628216,
+        "p50_time_ms": 0.012400007108226418,
+        "p95_time_ms": 0.013299999409355223,
+        "p99_time_ms": 0.024900000425986946,
+        "operations_per_second": 78083.51907701704,
+        "memory_usage_mb": 0.0,
+        "cpu_usage_percent": -43.7,
+        "error_count": 0,
+        "error_rate": 0.0
+      }
+    ]
+  },
+  "load_test_results": [
+    {
+      "test_name": "load_test_dummy_analysis",
+      "config": {
+        "concurrent_users": 10,
+        "operations_per_user": 100,
+        "ramp_up_time_seconds": 10,
+        "test_duration_seconds": 60,
+        "symbols": [
+          "BTCUSD",
+          "ETHUSD"
+        ],
+        "timeframes": [
+          "1m",
+          "5m",
+          "1h"
+        ]
+      },
+      "metrics": [
+        {
+          "operation_name": "dummy_analysis",
+          "total_operations": 1000,
+          "total_time_seconds": 14.305313,
+          "avg_time_ms": 10.488816900120582,
+          "min_time_ms": 10.06760000018403,
+          "max_time_ms": 27.050400007283315,
+          "p50_time_ms": 10.434800002258271,
+          "p95_time_ms": 10.637200000928715,
+          "p99_time_ms": 11.066599996411242,
+          "operations_per_second": 69.90409786909241,
+          "memory_usage_mb": 0.01953125,
+          "cpu_usage_percent": 3.1999999999999957,
+          "error_count": 0,
+          "error_rate": 0.0
+        }
+      ],
+      "system_metrics": {
+        "initial_memory_mb": 127.30078125,
+        "final_memory_mb": 127.3203125,
+        "memory_delta_mb": 0.01953125,
+        "initial_cpu_percent": 30.1,
+        "final_cpu_percent": 33.3,
+        "cpu_delta_percent": 3.1999999999999957,
+        "total_errors": 0,
+        "error_samples": []
+      },
+      "start_time": "2025-10-28T07:40:39.066046+00:00",
+      "end_time": "2025-10-28T07:40:53.371359+00:00",
+      "total_duration_seconds": 14.305313
+    },
+    {
+      "test_name": "load_test_dummy_analysis",
+      "config": {
+        "concurrent_users": 50,
+        "operations_per_user": 50,
+        "ramp_up_time_seconds": 30,
+        "test_duration_seconds": 120,
+        "symbols": [
+          "BTCUSD",
+          "ETHUSD",
+          "ADAUSD"
+        ],
+        "timeframes": [
+          "1m",
+          "5m",
+          "15m",
+          "1h"
+        ]
+      },
+      "metrics": [
+        {
+          "operation_name": "dummy_analysis",
+          "total_operations": 2500,
+          "total_time_seconds": 32.84948,
+          "avg_time_ms": 10.568236760224682,
+          "min_time_ms": 10.066100003314205,
+          "max_time_ms": 77.54669999121688,
+          "p50_time_ms": 10.438400000566617,
+          "p95_time_ms": 10.878700006287545,
+          "p99_time_ms": 13.440700000501238,
+          "operations_per_second": 76.10470546261311,
+          "memory_usage_mb": 0.01171875,
+          "cpu_usage_percent": 30.599999999999998,
+          "error_count": 0,
+          "error_rate": 0.0
+        }
+      ],
+      "system_metrics": {
+        "initial_memory_mb": 127.3203125,
+        "final_memory_mb": 127.33203125,
+        "memory_delta_mb": 0.01171875,
+        "initial_cpu_percent": 29.2,
+        "final_cpu_percent": 59.8,
+        "cpu_delta_percent": 30.599999999999998,
+        "total_errors": 0,
+        "error_samples": []
+      },
+      "start_time": "2025-10-28T07:40:53.372814+00:00",
+      "end_time": "2025-10-28T07:41:26.222294+00:00",
+      "total_duration_seconds": 32.84948
+    }
+  ],
+  "validation_results": {
+    "technical_indicators": true,
+    "pattern_recognition": true,
+    "market_data": true
+  },
+  "generated_at": "2025-10-28T07:41:26.225858+00:00"
+}

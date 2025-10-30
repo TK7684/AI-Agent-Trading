@@ -1,0 +1,6 @@
+{
+  "financial_calculations": true,
+  "trading_system_invariants": true,
+  "risk_management_properties": true,
+  "order_processing_properties": true
+}

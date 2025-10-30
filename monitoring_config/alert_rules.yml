@@ -1,0 +1,69 @@
+groups:
+- name: trading_system_alerts
+  rules:
+  - alert: TradingDrawdownHigh
+    annotations:
+      description: Current drawdown is {{ $value }}%, exceeding the 8% threshold
+      summary: Trading drawdown is critically high
+    expr: trading_drawdown_current_percent > 8
+    for: 1m
+    labels:
+      component: trading
+      severity: critical
+  - alert: ScanLatencyHigh
+    annotations:
+      description: P95 scan latency is {{ $value }}s, exceeding 1.0s threshold
+      summary: Market scan latency is high
+    expr: histogram_quantile(0.95, rate(system_scan_latency_seconds_bucket[5m])) >
+      1.0
+    for: 2m
+    labels:
+      component: system
+      severity: warning
+  - alert: LLMLatencyHigh
+    annotations:
+      description: P95 LLM latency is {{ $value }}s, exceeding 3.0s threshold
+      summary: LLM response latency is high
+    expr: histogram_quantile(0.95, rate(system_llm_latency_seconds_bucket[5m])) >
+      3.0
+    for: 2m
+    labels:
+      component: llm
+      severity: warning
+  - alert: SystemErrorRateHigh
+    annotations:
+      description: Error rate is {{ $value }} errors/second
+      summary: System error rate is high
+    expr: rate(system_errors_total[5m]) > 0.1
+    for: 1m
+    labels:
+      component: system
+      severity: warning
+  - alert: TradingSystemDown
+    annotations:
+      description: The trading system has been down for more than 30 seconds
+      summary: Trading system is down
+    expr: up{job="trading-system"} == 0
+    for: 30s
+    labels:
+      component: system
+      severity: critical
+  - alert: LLMCostHigh
+    annotations:
+      description: LLM costs have increased by ${{ $value }} in the last hour
+      summary: LLM costs are high
+    expr: increase(trading_llm_cost_usd_total[1h]) > 50
+    for: 0m
+    labels:
+      component: cost
+      severity: warning
+  - alert: PatternPerformanceDegraded
+    annotations:
+      description: Pattern {{ $labels.pattern_id }} hit rate is {{ $value }}%, below
+        30% threshold
+      summary: Pattern performance is degraded
+    expr: trading_pattern_hit_rate_percent < 30
+    for: 5m
+    labels:
+      component: trading
+      severity: warning

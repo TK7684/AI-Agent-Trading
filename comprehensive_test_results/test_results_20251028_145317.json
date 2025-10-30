@@ -1,0 +1,140 @@
+{
+  "timestamp": "2025-10-28T14:52:04.422935",
+  "system_health": {
+    "memory_usage_percent": 75.6,
+    "memory_available_gb": 3.7329750061035156,
+    "cpu_usage_percent": 24.8,
+    "cpu_count": 8,
+    "disk_usage_percent": 84.44752985841905,
+    "disk_free_gb": 73.96146011352539,
+    "process_memory_mb": 68.2890625,
+    "process_cpu_percent": 0.0,
+    "python_version": "3.12.4 (tags/v3.12.4:8e8a4ba, Jun  6 2024, 19:30:16) [MSC v.1940 64 bit (AMD64)]",
+    "python_executable": "C:\\Users\\ttapk\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+    "dependencies": {
+      "installed": [
+        "numpy",
+        "pandas",
+        "psutil",
+        "pydantic",
+        "asyncio",
+        "pytest",
+        "requests",
+        "aiohttp"
+      ],
+      "missing": [
+        "pytest-asyncio"
+      ],
+      "status": "MISSING_DEPS"
+    },
+    "database_status": "OK",
+    "external_api_status": "OK",
+    "status": "HEALTHY"
+  },
+  "performance_metrics": {
+    "numpy_operations_ms": 2835.916519165039,
+    "pandas_operations_ms": 31.452655792236328,
+    "string_operations_ms": 2.9833316802978516,
+    "dict_operations_ms": 1.004934310913086,
+    "io_operations_ms": 349.20716285705566,
+    "performance_score": 0
+  },
+  "code_quality": {
+    "python_files_count": 141,
+    "total_lines_of_code": 68204,
+    "todo_comments": 14,
+    "print_statements": 2125,
+    "test_files_count": 34,
+    "test_coverage_estimate": 24.113475177304963,
+    "issues": [
+      "High number of TODO comments: 14",
+      "Found 2125 print statements (should use logging)"
+    ],
+    "code_quality_score": 80
+  },
+  "security_scan": {
+    "vulnerabilities": [
+      "Potential hardcoded secrets found: 22",
+      "Dangerous function usage found: 2",
+      "Potential SQL injection risks: 3"
+    ],
+    "security_score": 55,
+    "status": "NEEDS_ATTENTION"
+  },
+  "optimization_recommendations": [
+    {
+      "category": "Performance",
+      "priority": "HIGH",
+      "issue": "Low performance score",
+      "recommendation": "Consider implementing caching, optimizing algorithms, and using async operations",
+      "estimated_impact": "30-50% performance improvement"
+    },
+    {
+      "category": "Security",
+      "priority": "HIGH",
+      "issue": "Security vulnerabilities found",
+      "recommendation": "Remove hardcoded secrets, use parameterized queries, avoid dangerous functions",
+      "estimated_impact": "Improved security posture"
+    },
+    {
+      "category": "Testing",
+      "priority": "MEDIUM",
+      "issue": "Low test coverage",
+      "recommendation": "Increase test coverage to at least 80% with comprehensive unit and integration tests",
+      "estimated_impact": "Improved code reliability and easier maintenance"
+    }
+  ],
+  "load_test_results": {
+    "scenarios": [
+      {
+        "scenario": "Light Load",
+        "users": 10,
+        "duration": 3.555758237838745,
+        "successful_requests": 96,
+        "failed_requests": 4,
+        "error_rate_percent": 4.0,
+        "avg_response_time_ms": 35.55758237838745,
+        "p95_response_time_ms": 77.11933851242065,
+        "requests_per_second": 26.998460969143547
+      },
+      {
+        "scenario": "Medium Load",
+        "users": 50,
+        "duration": 18.858253717422485,
+        "successful_requests": 468,
+        "failed_requests": 32,
+        "error_rate_percent": 6.4,
+        "avg_response_time_ms": 37.71650743484497,
+        "p95_response_time_ms": 77.33421325683594,
+        "requests_per_second": 24.816719883646016
+      },
+      {
+        "scenario": "Heavy Load",
+        "users": 100,
+        "duration": 37.09166240692139,
+        "successful_requests": 943,
+        "failed_requests": 57,
+        "error_rate_percent": 5.7,
+        "avg_response_time_ms": 37.09166240692139,
+        "p95_response_time_ms": 77.19424962997437,
+        "requests_per_second": 25.423503256732815
+      }
+    ],
+    "load_test_score": 93.0
+  },
+  "integration_tests": {
+    "component_tests": {
+      "basic_imports": "FAIL: cannot import name 'OrderDecision' from 'libs.trading_models.base' (C:\\Users\\ttapk\\PycharmProjects\\Kiro\\AI Agent Trading\\libs\\trading_models\\base.py)",
+      "technical_indicators": "FAIL: 'TechnicalIndicators' object has no attribute 'calculate_rsi'",
+      "risk_management": "PASS",
+      "configuration": "FAIL: No module named 'watchdog'"
+    },
+    "integration_score": 25.0,
+    "status": "FAIL"
+  },
+  "overall_score": 54.8,
+  "critical_issues": [
+    "CRITICAL: Core integration tests failing",
+    "CRITICAL: Very poor system performance"
+  ]
+}

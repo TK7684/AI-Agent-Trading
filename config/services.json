@@ -1,0 +1,114 @@
+{
+  "services": [
+    {
+      "name": "trading-api",
+      "command": "poetry",
+      "args": [
+        "run",
+        "uvicorn",
+        "apps.trading_api.main:app",
+        "--host",
+        "${API_HOST}",
+        "--port",
+        "${API_PORT}",
+        "--reload"
+      ],
+      "workingDirectory": ".",
+      "env": {
+        "DATABASE_URL": "${DATABASE_URL}",
+        "REDIS_URL": "${REDIS_URL}",
+        "LOG_LEVEL": "${LOG_LEVEL}",
+        "ENVIRONMENT": "${ENVIRONMENT}"
+      },
+      "dependsOn": ["postgresql-x64-15", "Redis"],
+      "healthCheck": {
+        "url": "http://localhost:${API_PORT}/health",
+        "interval": 5,
+        "timeout": 3,
+        "retries": 5
+      },
+      "restart": {
+        "enabled": true,
+        "maxRetries": 3,
+        "backoffSeconds": 5
+      }
+    },
+    {
+      "name": "orchestrator",
+      "command": "poetry",
+      "args": [
+        "run",
+        "python",
+        "-m",
+        "libs.trading_models.orchestrator"
+      ],
+      "workingDirectory": ".",
+      "env": {
+        "DATABASE_URL": "${DATABASE_URL}",
+        "REDIS_URL": "${REDIS_URL}",
+        "LOG_LEVEL": "${LOG_LEVEL}",
+        "ENVIRONMENT": "${ENVIRONMENT}"
+      },
+      "dependsOn": ["postgresql-x64-15", "Redis", "trading-api"],
+      "restart": {
+        "enabled": true,
+        "maxRetries": 3,
+        "backoffSeconds": 5
+      }
+    },
+    {
+      "name": "execution-gateway",
+      "command": ".\\target\\release\\execution-gateway.exe",
+      "args": [
+        "--port",
+        "${GATEWAY_PORT}"
+      ],
+      "workingDirectory": ".",
+      "env": {
+        "DATABASE_URL": "${DATABASE_URL}",
+        "RUST_LOG": "info"
+      },
+      "dependsOn": ["postgresql-x64-15"],
+      "healthCheck": {
+        "url": "http://localhost:${GATEWAY_PORT}/health",
+        "interval": 5,
+        "timeout": 3,
+        "retries": 5
+      },
+      "restart": {
+        "enabled": true,
+        "maxRetries": 3,
+        "backoffSeconds": 5
+      }
+    },
+    {
+      "name": "trading-dashboard",
+      "command": "npm",
+      "args": [
+        "run",
+        "dev"
+      ],
+      "workingDirectory": "apps/trading-dashboard-ui-clean",
+      "env": {
+        "VITE_API_BASE_URL": "${VITE_API_BASE_URL}",
+        "VITE_WS_BASE_URL": "${VITE_WS_BASE_URL}"
+      },
+      "dependsOn": ["trading-api"],
+      "healthCheck": {
+        "url": "http://localhost:5173",
+        "interval": 5,
+        "timeout": 3,
+        "retries": 10
+      }
+    }
+  ],
+  "logging": {
+    "directory": "logs",
+    "level": "INFO",
+    "rotation": {
+      "maxSize": "100MB",
+      "maxAge": 30,
+      "maxBackups": 10
+    }
+  }
+}

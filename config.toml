@@ -1,0 +1,40 @@
+[system]
+name = "autonomous-trading-system"
+version = "0.1.0"
+environment = "development"
+
+[logging]
+level = "info"
+format = "json"
+
+[orchestrator]
+check_interval_seconds = 900  # 15 minutes
+max_concurrent_analyses = 10
+
+[risk]
+max_position_size_pct = 2.0
+max_portfolio_exposure_pct = 20.0
+daily_drawdown_limit_pct = 8.0
+monthly_drawdown_limit_pct = 20.0
+max_leverage = 10.0
+default_leverage = 3.0
+
+[execution]
+retry_attempts = 3
+retry_backoff_seconds = 1
+circuit_breaker_threshold = 5
+circuit_breaker_timeout_seconds = 60
+
+[llm]
+default_timeout_seconds = 30
+max_tokens = 4000
+temperature = 0.1
+
+[monitoring]
+metrics_port = 9090
+health_check_port = 8080
+
+[database]
+# Connection details will be set via environment variables
+pool_size = 10
+timeout_seconds = 30

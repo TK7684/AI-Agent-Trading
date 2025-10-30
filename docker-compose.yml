@@ -1,0 +1,160 @@
+version: '3.8'
+
+services:
+  # Core trading services
+  orchestrator:
+    build:
+      context: .
+      dockerfile: Dockerfile.orchestrator
+    container_name: trading-orchestrator
+    environment:
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_URL=${REDIS_URL}
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./config.toml:/app/config.toml:ro
+      - ./logs:/app/logs
+    depends_on:
+      - postgres
+      - redis
+    restart: unless-stopped
+    networks:
+      - trading-network
+
+  execution-gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile.execution-gateway
+    container_name: trading-execution-gateway
+    environment:
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - DATABASE_URL=${DATABASE_URL}
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./logs:/app/logs
+    depends_on:
+      - postgres
+    restart: unless-stopped
+    networks:
+      - trading-network
+
+  monitoring:
+    build:
+      context: .
+      dockerfile: Dockerfile.monitoring
+    container_name: trading-monitoring
+    environment:
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+      - PROMETHEUS_URL=${PROMETHEUS_URL:-http://prometheus:9090}
+      - GRAFANA_URL=${GRAFANA_URL:-http://grafana:3000}
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring_config:/app/monitoring_config:ro
+      - ./logs:/app/logs
+    restart: unless-stopped
+    networks:
+      - trading-network
+
+  # Infrastructure services
+  postgres:
+    image: postgres:15-alpine
+    container_name: trading-postgres
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB:-trading}
+      - POSTGRES_USER=${POSTGRES_USER:-trading}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./infra/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    restart: unless-stopped
+    networks:
+      - trading-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: trading-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    networks:
+      - trading-network
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: trading-prometheus
+    ports:
+      - "9091:9090"
+    volumes:
+      - ./infra/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+    restart: unless-stopped
+    networks:
+      - trading-network
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: trading-grafana
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin}
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./infra/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./infra/grafana/dashboards:/var/lib/grafana/dashboards:ro
+    restart: unless-stopped
+    networks:
+      - trading-network
+
+  # Log aggregation
+  loki:
+    image: grafana/loki:latest
+    container_name: trading-loki
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./infra/loki/loki-config.yml:/etc/loki/local-config.yaml:ro
+      - loki_data:/loki
+    command: -config.file=/etc/loki/local-config.yaml
+    restart: unless-stopped
+    networks:
+      - trading-network
+
+  promtail:
+    image: grafana/promtail:latest
+    container_name: trading-promtail
+    volumes:
+      - ./logs:/var/log/trading:ro
+      - ./infra/promtail/promtail-config.yml:/etc/promtail/config.yml:ro
+    command: -config.file=/etc/promtail/config.yml
+    restart: unless-stopped
+    networks:
+      - trading-network
+
+volumes:
+  postgres_data:
+  redis_data:
+  prometheus_data:
+  grafana_data:
+  loki_data:
+
+networks:
+  trading-network:
+    driver: bridge

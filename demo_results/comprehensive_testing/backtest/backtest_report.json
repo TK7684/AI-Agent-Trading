@@ -1,0 +1,41 @@
+{
+  "config": {
+    "start_date": "2025-08-29 07:41:26.230633+00:00",
+    "end_date": "2025-10-28 06:41:26.230633+00:00",
+    "initial_capital": 10000.0,
+    "symbols": [
+      "BTCUSD"
+    ],
+    "timeframes": [
+      "1h"
+    ],
+    "commission_rate": 0.001,
+    "slippage_bps": 2,
+    "random_seed": 42,
+    "data_window_hash": null,
+    "max_positions": 10
+  },
+  "metrics": {
+    "total_return": 0.0,
+    "sharpe_ratio": 0.0,
+    "max_drawdown": 0.0,
+    "calmar_ratio": 0.0,
+    "win_rate": 0.0,
+    "profit_factor": 0.0,
+    "avg_trade_return": 0.0,
+    "total_trades": 0,
+    "winning_trades": 0,
+    "losing_trades": 0,
+    "largest_win": 0.0,
+    "largest_loss": 0.0,
+    "avg_holding_period": 0.0,
+    "volatility": 0.0,
+    "beta": 0.0,
+    "alpha": 0.0,
+    "sortino_ratio": 0.0
+  },
+  "execution_time": 0.312135,
+  "data_integrity_hash": "3ca46ae6d55691ff",
+  "trade_count": 0,
+  "generated_at": "2025-10-28T07:41:26.601122+00:00"
+}

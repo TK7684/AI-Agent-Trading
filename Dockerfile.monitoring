@@ -1,0 +1,34 @@
+# Monitoring service container
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy dependency files
+COPY pyproject.toml ./
+COPY libs/ ./libs/
+
+# Install Python dependencies
+RUN pip install --no-cache-dir poetry && \
+    poetry config virtualenvs.create false && \
+    poetry install --only=main --no-dev
+
+# Copy monitoring configuration
+COPY monitoring_config/ ./monitoring_config/
+COPY demo_monitoring.py ./
+
+# Create non-root user
+RUN useradd --create-home --shell /bin/bash app
+USER app
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:9090/health || exit 1
+
+EXPOSE 9090
+
+CMD ["python", "demo_monitoring.py"]

@@ -1,0 +1,128 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "trading-system.fullname" . }}-config
+  labels:
+    {{- include "trading-system.labels" . | nindent 4 }}
+data:
+  config.toml: |
+    [system]
+    environment = "{{ .Values.environment }}"
+    log_level = "{{ .Values.config.logLevel }}"
+    
+    [database]
+    host = "{{ .Values.config.database.host }}"
+    port = {{ .Values.config.database.port }}
+    name = "{{ .Values.config.database.name }}"
+    username = "{{ .Values.config.database.username }}"
+    
+    [redis]
+    host = "{{ .Values.config.redis.host }}"
+    port = {{ .Values.config.redis.port }}
+    
+    [monitoring]
+    enabled = {{ .Values.config.monitoring.enabled }}
+    prometheus_port = {{ .Values.config.monitoring.prometheus.port }}
+    grafana_port = {{ .Values.config.monitoring.grafana.port }}
+---
+{{- if .Values.featureFlags.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "trading-system.fullname" . }}-feature-flags
+  labels:
+    {{- include "trading-system.labels" . | nindent 4 }}
+data:
+  flags.yaml: |
+    flags:
+      # Trading features
+      multi_timeframe_analysis:
+        enabled: true
+        rollout_percentage: 100
+        description: "Enable multi-timeframe analysis across 15m, 1h, 4h, 1d"
+      
+      llm_routing:
+        enabled: true
+        rollout_percentage: 100
+        description: "Enable multi-LLM routing with fallback"
+        variants:
+          accuracy_first: 40
+          cost_aware: 40
+          latency_aware: 20
+      
+      adaptive_position_sizing:
+        enabled: true
+        rollout_percentage: 50
+        description: "Enable adaptive position sizing based on performance"
+      
+      pattern_weight_learning:
+        enabled: true
+        rollout_percentage: 75
+        description: "Enable pattern weight adaptation using bandit algorithms"
+      
+      advanced_risk_management:
+        enabled: true
+        rollout_percentage: 100
+        description: "Enable advanced risk management with correlation checks"
+      
+      # Execution features
+      idempotent_orders:
+        enabled: true
+        rollout_percentage: 100
+        description: "Enable idempotent order processing"
+      
+      circuit_breakers:
+        enabled: true
+        rollout_percentage: 100
+        description: "Enable circuit breakers for external services"
+      
+      # Monitoring features
+      detailed_metrics:
+        enabled: true
+        rollout_percentage: 100
+        description: "Enable detailed performance metrics collection"
+      
+      distributed_tracing:
+        enabled: true
+        rollout_percentage: 80
+        description: "Enable OpenTelemetry distributed tracing"
+      
+      # Experimental features
+      quantum_indicators:
+        enabled: false
+        rollout_percentage: 0
+        description: "Experimental quantum-inspired technical indicators"
+      
+      sentiment_analysis:
+        enabled: false
+        rollout_percentage: 10
+        description: "Experimental sentiment analysis integration"
+      
+      reinforcement_learning:
+        enabled: false
+        rollout_percentage: 5
+        description: "Experimental RL-based strategy optimization"
+    
+    # Rollout rules
+    rollout_rules:
+      - name: "canary_users"
+        percentage: 5
+        conditions:
+          - attribute: "user_tier"
+            operator: "equals"
+            value: "premium"
+      
+      - name: "beta_features"
+        percentage: 20
+        conditions:
+          - attribute: "environment"
+            operator: "equals"
+            value: "staging"
+      
+      - name: "gradual_rollout"
+        percentage: 50
+        conditions:
+          - attribute: "deployment_color"
+            operator: "equals"
+            value: "green"
+{{- end }}

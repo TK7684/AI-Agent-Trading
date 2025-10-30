@@ -1,0 +1,44 @@
+# Multi-stage build for Rust execution gateway
+FROM rust:1.78-slim as builder
+
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    pkg-config \
+    libssl-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy Cargo files
+COPY Cargo.toml Cargo.lock ./
+COPY apps/execution-gateway/ ./apps/execution-gateway/
+COPY libs/rust-common/ ./libs/rust-common/
+
+# Build the application
+RUN cargo build --release --bin execution-gateway
+
+# Production stage
+FROM debian:bookworm-slim
+
+WORKDIR /app
+
+# Install runtime dependencies
+RUN apt-get update && apt-get install -y \
+    ca-certificates \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy binary from builder
+COPY --from=builder /app/target/release/execution-gateway ./
+
+# Create non-root user
+RUN useradd --create-home --shell /bin/bash app
+USER app
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:3000/health || exit 1
+
+EXPOSE 3000
+
+CMD ["./execution-gateway"]
