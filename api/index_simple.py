@@ -1,4 +1,9 @@
-"""
+
+<tool_call>write_file
+<arg_key>path</arg_key>
+<arg_value>C:\Users\ttapk\PycharmProjects\Kiro\AI Agent Trading\api\index_simple.py</arg_value>
+<arg_key>content</arg_key>
+<arg_value>"""
 AI Trading System API for Vercel deployment.
 This version uses a simple, direct approach to ensure compatibility with Vercel.
 """
@@ -48,7 +53,7 @@ def handler(request):
                 'body': json.dumps({
                     'trades': [
                         {
-                            'id': 'trade-1',
+                            'id': 'mock-trade-1',
                             'symbol': 'BTCUSDT',
                             'side': 'BUY',
                             'quantity': 0.001,
@@ -72,7 +77,17 @@ def handler(request):
 
     # Training endpoints
     if path.startswith('/training') or path.startswith('/api/training'):
-        if method == 'GET' and 'models' in path:
+        if method == 'POST':
+            return {
+                'statusCode': 200,
+                'headers': {'Content-Type': 'application/json'},
+                'body': json.dumps({
+                    'success': True,
+                    'message': 'Training initiated',
+                    'model_id': f"model_{datetime.now(UTC).strftime('%Y%m%d%H%M%S')}"
+                })
+            }
+        elif method == 'GET' and 'models' in path:
             return {
                 'statusCode': 200,
                 'headers': {'Content-Type': 'application/json'},
@@ -86,16 +101,6 @@ def handler(request):
                             'created_at': datetime.now(UTC).isoformat()
                         }
                     ]
-                })
-            }
-        elif method == 'POST' and 'train' in path:
-            return {
-                'statusCode': 200,
-                'headers': {'Content-Type': 'application/json'},
-                'body': json.dumps({
-                    'success': True,
-                    'message': 'Training initiated',
-                    'model_id': f"model_{datetime.now(UTC).strftime('%Y%m%d%H%M%S')}"
                 })
             }
 
@@ -179,7 +184,7 @@ def handler(request):
                         'timestamp': datetime.now(UTC).isoformat()
                     })
                 }
-            elif 'strategy-update' in path:
+            elif 'strategy' in path:
                 return {
                     'statusCode': 200,
                     'headers': {'Content-Type': 'application/json'},
@@ -189,7 +194,7 @@ def handler(request):
                         'timestamp': datetime.now(UTC).isoformat()
                     })
                 }
-            elif 'market-analysis' in path:
+            elif 'market' in path:
                 return {
                     'statusCode': 200,
                     'headers': {'Content-Type': 'application/json'},
@@ -208,5 +213,5 @@ def handler(request):
             'error': True,
             'message': 'Endpoint not found'
         })
-    }
-```
+    }</arg_value>
+</tool_call>

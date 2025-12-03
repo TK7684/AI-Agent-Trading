@@ -1,3 +1,21 @@
+# AI Trading System - Vercel Deployment Guide
+
+## Issue Analysis
+
+Your current Vercel deployment is returning 404 errors because:
+1. Vercel is not properly recognizing the Python serverless functions
+2. The routing configuration isn't compatible with Vercel's Python runtime
+3. The API handler isn't structured correctly for Vercel's request model
+
+## Quick Fix Solution
+
+Instead of trying to fix the complex routing, let's deploy a simple, working version that follows Vercel's expected structure:
+
+### Step 1: Create a Simple Working API
+
+Create a new file at `api/index.py` that handles all requests directly without complex routing:
+
+```python
 """
 AI Trading System API for Vercel deployment.
 This version uses a simple, direct approach to ensure compatibility with Vercel.
@@ -15,17 +33,17 @@ sys.path.append(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__f
 def handler(request):
     """
     Main request handler for Vercel.
-
+    
     Args:
         request: Vercel request object
-
+        
     Returns:
         Dict containing the response
     """
     # Get request details
     method = request.get('method', 'GET')
     path = request.get('path', '/')
-
+    
     # Health check endpoint
     if path == '/health' or path == '/api/health':
         return {
@@ -38,9 +56,9 @@ def handler(request):
                 'environment': 'production'
             })
         }
-
+    
     # Trading endpoints
-    if path.startswith('/trades') or path.startswith('/api/trades'):
+    if path.startswith('/trades'):
         if method == 'GET':
             return {
                 'statusCode': 200,
@@ -48,7 +66,7 @@ def handler(request):
                 'body': json.dumps({
                     'trades': [
                         {
-                            'id': 'trade-1',
+                            'id': 'mock-trade-1',
                             'symbol': 'BTCUSDT',
                             'side': 'BUY',
                             'quantity': 0.001,
@@ -65,14 +83,23 @@ def handler(request):
                 'headers': {'Content-Type': 'application/json'},
                 'body': json.dumps({
                     'success': True,
-                    'message': 'Trade created successfully',
-                    'trade_id': f"trade_{datetime.now(UTC).strftime('%Y%m%d%H%M%S')}"
+                    'message': 'Trade created successfully'
                 })
             }
-
+    
     # Training endpoints
-    if path.startswith('/training') or path.startswith('/api/training'):
-        if method == 'GET' and 'models' in path:
+    if path.startswith('/training'):
+        if method == 'POST':
+            return {
+                'statusCode': 200,
+                'headers': {'Content-Type': 'application/json'},
+                'body': json.dumps({
+                    'success': True,
+                    'message': 'Training initiated',
+                    'model_id': f"model_{datetime.now(UTC).strftime('%Y%m%d%H%M%S')}"
+                })
+            }
+        elif method == 'GET' and 'models' in path:
             return {
                 'statusCode': 200,
                 'headers': {'Content-Type': 'application/json'},
@@ -88,19 +115,9 @@ def handler(request):
                     ]
                 })
             }
-        elif method == 'POST' and 'train' in path:
-            return {
-                'statusCode': 200,
-                'headers': {'Content-Type': 'application/json'},
-                'body': json.dumps({
-                    'success': True,
-                    'message': 'Training initiated',
-                    'model_id': f"model_{datetime.now(UTC).strftime('%Y%m%d%H%M%S')}"
-                })
-            }
-
+    
     # Strategy endpoints
-    if path.startswith('/strategies') or path.startswith('/api/strategies'):
+    if path.startswith('/strategies'):
         if method == 'GET':
             return {
                 'statusCode': 200,
@@ -124,14 +141,13 @@ def handler(request):
                 'headers': {'Content-Type': 'application/json'},
                 'body': json.dumps({
                     'success': True,
-                    'message': 'Strategy created successfully',
-                    'strategy_id': f"strategy_{datetime.now(UTC).strftime('%Y%m%d%H%M%S')}"
+                    'message': 'Strategy created successfully'
                 })
             }
-
+    
     # Market data endpoints
-    if path.startswith('/market') or path.startswith('/api/market'):
-        if method == 'GET' and 'data' in path:
+    if path.startswith('/market'):
+        if method == 'GET':
             return {
                 'statusCode': 200,
                 'headers': {'Content-Type': 'application/json'},
@@ -157,49 +173,12 @@ def handler(request):
                         'RSI': 55.0,
                         'MACD': {
                             'macd': 100.0,
-                            'signal': 80.0,
-                            'histogram': 20.0
-                        },
-                        'SMA_20': 50000.0,
-                        'SMA_50': 49000.0
+                            'signal': 80.0
+                        }
                     }
                 })
             }
-
-    # Cron job endpoints
-    if path.startswith('/cron'):
-        if method == 'POST':
-            if 'training' in path:
-                return {
-                    'statusCode': 200,
-                    'headers': {'Content-Type': 'application/json'},
-                    'body': json.dumps({
-                        'success': True,
-                        'message': 'Training cron job executed',
-                        'timestamp': datetime.now(UTC).isoformat()
-                    })
-                }
-            elif 'strategy-update' in path:
-                return {
-                    'statusCode': 200,
-                    'headers': {'Content-Type': 'application/json'},
-                    'body': json.dumps({
-                        'success': True,
-                        'message': 'Strategy update cron job executed',
-                        'timestamp': datetime.now(UTC).isoformat()
-                    })
-                }
-            elif 'market-analysis' in path:
-                return {
-                    'statusCode': 200,
-                    'headers': {'Content-Type': 'application/json'},
-                    'body': json.dumps({
-                        'success': True,
-                        'message': 'Market analysis cron job executed',
-                        'timestamp': datetime.now(UTC).isoformat()
-                    })
-                }
-
+    
     # Default 404 response
     return {
         'statusCode': 404,
@@ -210,3 +189,116 @@ def handler(request):
         })
     }
 ```
+
+### Step 2: Create a Simple Vercel Configuration
+
+Replace your `vercel.json` with this minimal configuration:
+
+```json
+{
+  "version": 2,
+  "name": "ai-trading-system",
+  "builds": [
+    {
+      "src": "api/index.py",
+      "use": "@vercel/python"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/api/index.py"
+    }
+  ],
+  "env": {
+    "PYTHON_VERSION": "3.11"
+  },
+  "functions": {
+    "api/index.py": {
+      "runtime": "python3.11",
+      "maxDuration": 300
+    }
+  }
+}
+```
+
+### Step 3: Deploy and Test
+
+1. Commit and push the changes
+2. Wait for Vercel to deploy
+3. Test the health endpoint: `https://ai-agent-trading.vercel.app/api/health`
+4. Test other endpoints: 
+   - `https://ai-agent-trading.vercel.app/trades` (GET)
+   - `https://ai-agent-trading.vercel.app/trades` (POST)
+   - `https://ai-agent-trading.vercel.app/training/models`
+   - `https://ai-agent-trading.vercel.app/strategies`
+
+### Step 4: Implement Cron Jobs
+
+Once the basic API is working, you can add cron jobs:
+
+```json
+{
+  "version": 2,
+  "name": "ai-trading-system",
+  "builds": [
+    {
+      "src": "api/index.py",
+      "use": "@vercel/python"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/api/index.py"
+    }
+  ],
+  "env": {
+    "PYTHON_VERSION": "3.11"
+  },
+  "functions": {
+    "api/index.py": {
+      "runtime": "python3.11",
+      "maxDuration": 300
+    }
+  },
+  "cron": [
+    {
+      "path": "/training",
+      "schedule": "0 */6 * * *"
+    },
+    {
+      "path": "/strategy-update",
+      "schedule": "0 2 * * *"
+    },
+    {
+      "path": "/market-analysis",
+      "schedule": "*/30 * * * *"
+    }
+  ]
+}
+```
+
+## Why This Works Better
+
+1. **Simple Routing**: No complex routing logic that might confuse Vercel
+2. **Single File**: All logic in one file that Vercel can easily find
+3. **Standard Structure**: Follows Vercel's expected Python serverless pattern
+4. **No Complex Imports**: Avoids import issues in serverless environment
+5. **Clear Path Handling**: Simple string matching for routing
+
+## Next Steps
+
+1. Replace your `api/index.py` with the simple version above
+2. Replace your `vercel.json` with the minimal version
+3. Commit and push changes
+4. Wait for deployment
+5. Test all endpoints
+
+Once this basic version is working, you can gradually add back the more complex functionality by:
+1. Adding imports from your libraries
+2. Implementing database connections
+3. Adding authentication
+4. Expanding endpoint functionality
+
+The key is to get the basic structure working first, then build up complexity incrementally.

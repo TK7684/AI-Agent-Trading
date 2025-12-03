@@ -1,0 +1,5 @@
+
+<tool_call>create_directory
+<arg_key>path</arg_key>
+<arg_value>C:\Users\ttapk\PycharmProjects\Kiro\AI Agent Trading\vercel_new</arg_value>
+</tool_call>
