@@ -2,16 +2,9 @@
   "version": 2,
   "name": "ai-trading-system",
   "framework": null,
-  "buildCommand": "pip install -r requirements.txt",
-  "outputDirectory": "",
-  "installCommand": "pip install -r requirements.txt",
   "builds": [
     {
       "src": "api/index.py",
-      "use": "@vercel/python"
-    },
-    {
-      "src": "api/functions/*.py",
       "use": "@vercel/python"
     }
   ],
@@ -19,6 +12,10 @@
     {
       "src": "/api/(.*)",
       "dest": "/api/index.py"
+    },
+    {
+      "src": "/health",
+      "dest": "/api/functions/health.py"
     },
     {
       "src": "/trading/(.*)",
@@ -37,12 +34,16 @@
       "dest": "/api/functions/market.py"
     },
     {
-      "src": "/health",
-      "dest": "/api/functions/health.py"
+      "src": "/cron/training",
+      "dest": "/api/functions/cron_training.py"
     },
     {
-      "src": "/(.*)",
-      "dest": "/public/$1"
+      "src": "/cron/strategy-update",
+      "dest": "/api/functions/cron_strategy_update.py"
+    },
+    {
+      "src": "/cron/market-analysis",
+      "dest": "/api/functions/cron_market_analysis.py"
     }
   ],
   "env": {
@@ -53,6 +54,14 @@
       "runtime": "python3.11",
       "maxDuration": 30
     },
+    "api/functions/health.py": {
+      "runtime": "python3.11",
+      "maxDuration": 30
+    },
+    "api/functions/trading.py": {
+      "runtime": "python3.11",
+      "maxDuration": 30
+    },
     "api/functions/training.py": {
       "runtime": "python3.11",
       "maxDuration": 300
@@ -60,6 +69,22 @@
     "api/functions/strategies.py": {
       "runtime": "python3.11",
       "maxDuration": 60
+    },
+    "api/functions/market.py": {
+      "runtime": "python3.11",
+      "maxDuration": 30
+    },
+    "api/functions/cron_training.py": {
+      "runtime": "python3.11",
+      "maxDuration": 300
+    },
+    "api/functions/cron_strategy_update.py": {
+      "runtime": "python3.11",
+      "maxDuration": 300
+    },
+    "api/functions/cron_market_analysis.py": {
+      "runtime": "python3.11",
+      "maxDuration": 300
     }
   },
   "cron": [
