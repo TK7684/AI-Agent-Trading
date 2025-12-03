@@ -1,7 +1,6 @@
 {
   "version": 2,
   "name": "ai-trading-system",
-  "framework": null,
   "builds": [
     {
       "src": "api/index.py",
@@ -11,39 +10,11 @@
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "/api/index.py"
+      "dest": "api/index.py"
     },
     {
-      "src": "/health",
-      "dest": "/api/functions/health.py"
-    },
-    {
-      "src": "/trading/(.*)",
-      "dest": "/api/functions/trading.py"
-    },
-    {
-      "src": "/training/(.*)",
-      "dest": "/api/functions/training.py"
-    },
-    {
-      "src": "/strategies/(.*)",
-      "dest": "/api/functions/strategies.py"
-    },
-    {
-      "src": "/market/(.*)",
-      "dest": "/api/functions/market.py"
-    },
-    {
-      "src": "/cron/training",
-      "dest": "/api/functions/cron_training.py"
-    },
-    {
-      "src": "/cron/strategy-update",
-      "dest": "/api/functions/cron_strategy_update.py"
-    },
-    {
-      "src": "/cron/market-analysis",
-      "dest": "/api/functions/cron_market_analysis.py"
+      "src": "/(.*)",
+      "dest": "api/index.py"
     }
   ],
   "env": {
@@ -53,38 +24,6 @@
     "api/index.py": {
       "runtime": "python3.11",
       "maxDuration": 30
-    },
-    "api/functions/health.py": {
-      "runtime": "python3.11",
-      "maxDuration": 30
-    },
-    "api/functions/trading.py": {
-      "runtime": "python3.11",
-      "maxDuration": 30
-    },
-    "api/functions/training.py": {
-      "runtime": "python3.11",
-      "maxDuration": 300
-    },
-    "api/functions/strategies.py": {
-      "runtime": "python3.11",
-      "maxDuration": 60
-    },
-    "api/functions/market.py": {
-      "runtime": "python3.11",
-      "maxDuration": 30
-    },
-    "api/functions/cron_training.py": {
-      "runtime": "python3.11",
-      "maxDuration": 300
-    },
-    "api/functions/cron_strategy_update.py": {
-      "runtime": "python3.11",
-      "maxDuration": 300
-    },
-    "api/functions/cron_market_analysis.py": {
-      "runtime": "python3.11",
-      "maxDuration": 300
     }
   },
   "cron": [
