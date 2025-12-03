@@ -1,0 +1,36 @@
+{
+  "name": "ai-trading-system",
+  "version": "1.0.0",
+  "description": "AI-powered autonomous trading system optimized for Vercel deployment",
+  "main": "api/index.py",
+  "scripts": {
+    "dev": "vercel dev",
+    "build": "echo 'No build step required for serverless functions'",
+    "start": "vercel dev",
+    "deploy": "vercel --prod",
+    "test": "echo 'No test script configured yet'",
+    "lint": "echo 'No lint script configured yet'",
+    "postinstall": "echo 'Installing Python dependencies...'"
+  },
+  "keywords": [
+    "ai",
+    "trading",
+    "cryptocurrency",
+    "bot",
+    "vercel",
+    "serverless"
+  ],
+  "author": "AI Trading Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-username/ai-trading-system.git"
+  },
+  "devDependencies": {
+    "@vercel/node": "^3.0.0",
+    "vercel": "^32.3.1"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
