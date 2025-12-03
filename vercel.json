@@ -1,7 +1,39 @@
-
-<tool_call>edit_file
-<arg_key>path</arg_key>
-<arg_value>C:\Users\ttapk\PycharmProjects\Kiro\AI Agent Trading\vercel.json</arg_value>
-<arg_key>mode</arg_key>
-<arg_value>overwrite</arg_value>
-</tool_call>
+{
+  "version": 2,
+  "name": "ai-trading-system",
+  "builds": [
+    {
+      "src": "api/index_simple.py",
+      "use": "@vercel/python"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/api/index_simple.py"
+    }
+  ],
+  "env": {
+    "PYTHON_VERSION": "3.11"
+  },
+  "functions": {
+    "api/index_simple.py": {
+      "runtime": "python3.11",
+      "maxDuration": 300
+    }
+  },
+  "cron": [
+    {
+      "path": "/training",
+      "schedule": "0 */6 * * *"
+    },
+    {
+      "path": "/strategy-update", 
+      "schedule": "0 2 * * *"
+    },
+    {
+      "path": "/market-analysis",
+      "schedule": "*/30 * * * *"
+    }
+  ]
+}
