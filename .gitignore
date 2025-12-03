@@ -216,3 +216,5 @@ sbom.spdx.json
 
 # Docker
 .dockerignore
+.vercel
+.env*.local
