@@ -4,7 +4,7 @@ Unit tests for live trading configuration and data models.
 
 import os
 import sys
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, UTC
 
 import pytest
 
@@ -273,7 +273,7 @@ class TestValidationResult:
             performance=metrics,
             validation_period=timedelta(days=7),
             issues=[],
-            timestamp=datetime.utcnow(),
+            timestamp=datetime.now(UTC),
             win_rate_passed=True,
             sharpe_ratio_passed=True,
             drawdown_passed=True,
@@ -329,7 +329,7 @@ class TestEmergencyResponse:
 
     def test_cooldown_check(self):
         """Test cooldown period checking."""
-        future_time = datetime.utcnow() + timedelta(hours=2)
+        future_time = datetime.now(UTC) + timedelta(hours=2)
 
         response = EmergencyResponse(
             trigger_reason="Test emergency",
@@ -338,13 +338,13 @@ class TestEmergencyResponse:
             positions_closed=[],
             cooldown_until=future_time,
             recovery_steps=["manual_review"],
-            timestamp=datetime.utcnow()
+            timestamp=datetime.now(UTC)
         )
 
         assert response.is_in_cooldown() is True
 
         # Test past cooldown
-        past_time = datetime.utcnow() - timedelta(hours=1)
+        past_time = datetime.now(UTC) - timedelta(hours=1)
         response.cooldown_until = past_time
 
         assert response.is_in_cooldown() is False

@@ -148,7 +148,11 @@ class DataSynchronizer:
             self.sync_status[timeframe].data_count = len(self.buffers[timeframe].data)
 
             # Trigger synchronization check
-            asyncio.create_task(self._check_synchronization())
+            try:
+                asyncio.create_task(self._check_synchronization())
+            except RuntimeError:
+                # No event loop running, sync will be checked on next data
+                pass
 
     async def _check_synchronization(self):
         """Check if all timeframes are synchronized"""

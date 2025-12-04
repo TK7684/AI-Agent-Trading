@@ -165,7 +165,7 @@ class TestCorrelationMonitor:
                 unrealized_pnl=Decimal("10"),
                 initial_risk=Decimal("20"),
                 current_risk=Decimal("20"),
-                opened_at=datetime.utcnow()
+                opened_at=datetime.now(UTC)
             )
         ]
 
@@ -202,7 +202,7 @@ class TestCorrelationMonitor:
                 unrealized_pnl=Decimal("1000"),
                 initial_risk=Decimal("2000"),
                 current_risk=Decimal("2000"),
-                opened_at=datetime.utcnow()
+                opened_at=datetime.now(UTC)
             )
         ]
 
@@ -409,7 +409,7 @@ class TestStopLossManager:
             unrealized_pnl=Decimal("50"),  # 5% profit
             initial_risk=Decimal("50"),
             current_risk=Decimal("50"),
-            opened_at=datetime.utcnow()
+            opened_at=datetime.now(UTC)
         )
 
         current_price = Decimal("1.1080")
@@ -438,7 +438,7 @@ class TestStopLossManager:
             unrealized_pnl=Decimal("10"),  # 1% profit (below 2% threshold)
             initial_risk=Decimal("50"),
             current_risk=Decimal("50"),
-            opened_at=datetime.utcnow()
+            opened_at=datetime.now(UTC)
         )
 
         new_stop = manager.calculate_trailing_stop(position, Decimal("1.1010"), 0.0025)
@@ -463,7 +463,7 @@ class TestStopLossManager:
             unrealized_pnl=Decimal("20"),  # 2% profit (above 1.5% threshold)
             initial_risk=Decimal("50"),
             current_risk=Decimal("50"),
-            opened_at=datetime.utcnow()
+            opened_at=datetime.now(UTC)
         )
 
         breakeven_stop = manager.calculate_breakeven_stop(position)
@@ -487,7 +487,7 @@ class TestStopLossManager:
             unrealized_pnl=Decimal("5"),  # 0.5% profit (below 1.5% threshold)
             initial_risk=Decimal("50"),
             current_risk=Decimal("50"),
-            opened_at=datetime.utcnow()
+            opened_at=datetime.now(UTC)
         )
 
         breakeven_stop = manager.calculate_breakeven_stop(position)
@@ -612,7 +612,7 @@ class TestRiskManager:
             unrealized_pnl=Decimal("50"),
             initial_risk=Decimal("50"),
             current_risk=Decimal("50"),
-            opened_at=datetime.utcnow()
+            opened_at=datetime.now(UTC)
         )
 
         # Add position
@@ -664,7 +664,7 @@ class TestRiskManager:
             unrealized_pnl=Decimal("50"),
             initial_risk=Decimal("50"),
             current_risk=Decimal("50"),
-            opened_at=datetime.utcnow()
+            opened_at=datetime.now(UTC)
         )
 
         risk_manager.add_position(position)
@@ -808,7 +808,7 @@ class TestPropertyBasedRiskManagement:
                 unrealized_pnl=Decimal("10"),
                 initial_risk=Decimal("20"),
                 current_risk=Decimal("20"),
-                opened_at=datetime.utcnow()
+                opened_at=datetime.now(UTC)
             )
         ]
 
@@ -880,7 +880,7 @@ class TestChaosAndPropertyBased:
             unrealized_pnl=Decimal("30"),
             initial_risk=Decimal("50"),
             current_risk=Decimal("50"),
-            opened_at=datetime.utcnow()
+            opened_at=datetime.now(UTC)
         )
 
         # Test trailing stop only moves in favorable direction
@@ -919,7 +919,7 @@ class TestChaosAndPropertyBased:
                 unrealized_pnl=Decimal("0"),  # Will be calculated
                 initial_risk=Decimal("50"),
                 current_risk=Decimal("50"),
-                opened_at=datetime.utcnow()
+                opened_at=datetime.now(UTC)
             )
 
             # Calculate P&L properly
@@ -965,7 +965,7 @@ class TestChaosAndPropertyBased:
                 unrealized_pnl=Decimal("0"),
                 initial_risk=Decimal("2500"),
                 current_risk=Decimal("2500"),
-                opened_at=datetime.utcnow()
+                opened_at=datetime.now(UTC)
             ),
             Position(
                 position_id="pos2",
@@ -978,7 +978,7 @@ class TestChaosAndPropertyBased:
                 unrealized_pnl=Decimal("0"),
                 initial_risk=Decimal("3000"),
                 current_risk=Decimal("3000"),
-                opened_at=datetime.utcnow()
+                opened_at=datetime.now(UTC)
             )
         ]
 
@@ -1070,7 +1070,7 @@ class TestChaosAndPropertyBased:
                 unrealized_pnl=Decimal("10"),
                 initial_risk=Decimal("50"),
                 current_risk=Decimal("50"),
-                opened_at=datetime.utcnow()
+                opened_at=datetime.now(UTC)
             )
             risk_manager.add_position(position)
 
@@ -1199,7 +1199,7 @@ class TestChaosAndPropertyBased:
                 unrealized_pnl=Decimal("10"),
                 initial_risk=Decimal("50"),
                 current_risk=Decimal("50"),
-                opened_at=datetime.utcnow()
+                opened_at=datetime.now(UTC)
             )
 
             risk_manager.add_position(position)

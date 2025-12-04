@@ -482,7 +482,7 @@ class ComprehensiveValidationFramework:
                     return MarketBar(
                         symbol=symbol,
                         timeframe=Timeframe.M15,
-                        timestamp=datetime.utcnow(),
+                        timestamp=datetime.now(UTC),
                         open=Decimal(str(self.price - price_change)),
                         high=Decimal(str(self.price + abs(price_change) * 1.5)),
                         low=Decimal(str(self.price - abs(price_change) * 1.5)),
@@ -537,7 +537,7 @@ class ComprehensiveValidationFramework:
                 'total_pnl': float(metrics.total_pnl),
                 'total_trades': metrics.total_trades,
                 'positions_count': metrics.positions_count,
-                'session_duration_seconds': (datetime.utcnow() - metrics.session_start).total_seconds()
+                'session_duration_seconds': (datetime.now(UTC) - metrics.session_start).total_seconds()
             }
 
             # Save paper trading report

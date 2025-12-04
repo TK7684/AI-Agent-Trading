@@ -472,7 +472,7 @@ class MultiLLMRouter:
 
             # Normalize scores (0-1)
             accuracy_score = metrics.avg_confidence
-            cost_score = 1 - min(metrics.avg_cost_per_token * 1000, 1)  # Normalize cost
+            cost_score = 1 - min(metrics.avg_cost_per_token * 10000, 1)  # Normalize cost (adjusted scale)
             latency_score = 1 - min(metrics.avg_latency_ms / 1000, 1)  # Normalize latency
             success_score = metrics.success_rate
 
@@ -602,7 +602,7 @@ class PromptGenerator:
 
         self.regime_guidance = {
             "BULL": "momentum continuation",
-            "BEAR": "reversal opportunities",
+            "BEAR": "reversal patterns",
             "SIDEWAYS": "range trading"
         }
 
@@ -696,6 +696,13 @@ class ModelMetrics:
         """Success rate as a percentage."""
         return self.successful_requests / max(self.total_requests, 1)
 
+    @property
+    def avg_cost_per_token(self) -> float:
+        """Average cost per token."""
+        if not hasattr(self, '_total_tokens') or self._total_tokens == 0:
+            return 0.0
+        return self.total_cost_usd / self._total_tokens
+
 
 class ModelPerformanceTracker:
     """Tracks and analyzes model performance over time."""
@@ -715,6 +722,11 @@ class ModelPerformanceTracker:
         metrics.total_latency_ms += response.latency_ms
         metrics.total_cost_usd += response.cost_usd
         metrics.total_confidence += response.confidence
+
+        # Track total tokens for cost per token calculation
+        if not hasattr(metrics, '_total_tokens'):
+            metrics._total_tokens = 0
+        metrics._total_tokens += response.tokens_used
 
         if response.success:
             metrics.successful_requests += 1

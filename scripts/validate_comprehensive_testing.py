@@ -22,6 +22,7 @@ import asyncio
 import logging
 import sys
 from datetime import datetime
+from datetime import UTC
 from pathlib import Path
 from typing import Any
 
@@ -465,7 +466,7 @@ class Task15Validator:
 
         report = {
             'task': 'Task 15: Create comprehensive testing and validation framework',
-            'validation_timestamp': datetime.utcnow().isoformat(),
+            'validation_timestamp': datetime.now(UTC).isoformat(),
             'overall_success': overall_success,
             'requirements_validation': self.validation_results,
             'definition_of_done': {

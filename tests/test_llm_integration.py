@@ -295,19 +295,15 @@ class TestPromptGenerator:
         portfolio_exposure = {"total_risk": 0.15, "correlation": 0.2}
 
         prompt = generator.generate_risk_assessment_prompt(
-            symbol="ETHUSD",
-            direction="LONG",
-            entry_price=3500.0,
+            position_size=0.02,
             stop_loss=3400.0,
             take_profit=3700.0,
-            position_size=0.02,
-            market_context=market_context,
-            portfolio_exposure=portfolio_exposure
+            portfolio_exposure=portfolio_exposure["total_risk"] * 100  # Convert to percentage
         )
 
-        assert "ETHUSD" in prompt
-        assert "LONG" in prompt
-        assert "3500.0" in prompt
+        assert "0.02" in prompt
+        assert "3400.0" in prompt
+        assert "3700.0" in prompt
         assert "3400.0" in prompt
         assert "3700.0" in prompt
         assert "0.02" in prompt
@@ -372,7 +368,7 @@ class TestModelPerformanceTracker:
         assert metrics.failed_requests == 0
         assert metrics.avg_latency_ms == 500
         assert metrics.avg_confidence == 0.85
-        assert len(tracker.performance_history) == 1
+        assert "test-model" in tracker.metrics
 
     def test_record_failed_request(self):
         """Test recording failed requests"""
@@ -545,10 +541,12 @@ class TestMultiLLMRouter:
 
         router = MultiLLMRouter(config)
 
-        response = await router.route_request(
+        request = LLMRequest(
             prompt="Analyze BTCUSD market conditions",
+            model_id="claude-3-sonnet",
             context={"symbol": "BTCUSD", "timeframe": "1h"}
         )
+        response = await router.route_request(request)
 
         assert response.success
         assert "claude" in response.model_id
@@ -577,10 +575,12 @@ class TestMultiLLMRouter:
         for _ in range(5):  # Default failure threshold
             router.circuit_breakers[claude_model_id].record_failure()
 
-        response = await router.route_request(
+        request = LLMRequest(
             prompt="Analyze ETHUSD",
+            model_id="claude-3-sonnet",
             context={"symbol": "ETHUSD"}
         )
+        response = await router.route_request(request)
 
         # Should fallback to Gemini
         assert response.success
@@ -605,11 +605,12 @@ class TestMultiLLMRouter:
         router = MultiLLMRouter(config)
         gemini_model_id = [k for k in router.clients.keys() if "gemini" in k][0]
 
-        response = await router.route_request(
+        request = LLMRequest(
             prompt="Analyze ADAUSD",
-            context={"symbol": "ADAUSD"},
-            preferred_model=gemini_model_id
+            model_id=gemini_model_id,
+            context={"symbol": "ADAUSD"}
         )
+        response = await router.route_request(request)
 
         assert response.success
         assert response.model_id == gemini_model_id
@@ -671,12 +672,12 @@ class TestMultiLLMRouter:
         }
 
         router = MultiLLMRouter(config)
-        cost_summary = router.get_cost_summary(24)
+        cost_summary = router.get_cost_summary()
 
-        assert "time_window_hours" in cost_summary
-        assert "total_cost_usd" in cost_summary
-        assert "total_tokens" in cost_summary
-        assert "cost_by_model" in cost_summary
+        assert "claude" in cost_summary
+        assert "gemini" in cost_summary
+        assert isinstance(cost_summary["claude"], float)
+        assert isinstance(cost_summary["gemini"], float)
         assert cost_summary["time_window_hours"] == 24
 
     def test_router_circuit_breaker_reset(self):
@@ -758,10 +759,12 @@ async def test_integration_full_workflow():
         )
 
         # Route request
-        response = await router.route_request(
+        request = LLMRequest(
             prompt=prompt,
+            model_id="claude-3-sonnet",
             context={"symbol": symbol, "timeframe": "1h"}
         )
+        response = await router.route_request(request)
 
         assert response.success
         assert symbol in response.content

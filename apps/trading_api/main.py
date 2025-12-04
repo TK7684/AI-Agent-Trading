@@ -1,5 +1,6 @@
 import asyncio
 from datetime import datetime, timedelta
+from datetime import UTC
 from typing import Any, Optional
 
 import jwt
@@ -83,7 +84,7 @@ class AgentControlRequest(BaseModel):
 
 
 def create_token(sub: str, minutes: int = ACCESS_EXPIRE_MIN) -> str:
-    now = datetime.utcnow()
+    now = datetime.now(UTC)
     payload = {"sub": sub, "iat": int(now.timestamp()), "exp": int((now + timedelta(minutes=minutes)).timestamp())}
     return jwt.encode(payload, SECRET, algorithm=ALGO)
 
@@ -264,10 +265,10 @@ async def _broadcast_loop() -> None:
                     "portfolioValue": 0.0,
                     "dailyChange": 0.0,
                     "dailyChangePercent": 0.0,
-                    "lastUpdate": datetime.utcnow().isoformat(),
+                    "lastUpdate": datetime.now(UTC).isoformat(),
                 },
-                "timestamp": datetime.utcnow().isoformat(),
-                "id": f"pnl_{int(datetime.utcnow().timestamp())}",
+                "timestamp": datetime.now(UTC).isoformat(),
+                "id": f"pnl_{int(datetime.now(UTC).timestamp())}",
             }
             health_msg = {
                 "type": "HEALTH_CHECK",
@@ -277,12 +278,12 @@ async def _broadcast_loop() -> None:
                     "diskUsage": 0.0,
                     "networkLatency": system_summary.get("scan_latency_p95", 0.0),
                     "errorRate": 0.0,
-                    "uptime": int((datetime.utcnow() - datetime.utcfromtimestamp(0)).total_seconds()),
+                    "uptime": int((datetime.now(UTC) - datetime.utcfromtimestamp(0)).total_seconds()),
                     "connections": {"database": True, "broker": True, "llm": True, "websocket": True},
-                    "lastUpdate": datetime.utcnow().isoformat(),
+                    "lastUpdate": datetime.now(UTC).isoformat(),
                 },
-                "timestamp": datetime.utcnow().isoformat(),
-                "id": f"health_{int(datetime.utcnow().timestamp())}",
+                "timestamp": datetime.now(UTC).isoformat(),
+                "id": f"health_{int(datetime.now(UTC).timestamp())}",
             }
             # Broadcast to clients
             for ws in list(_ws_clients):
@@ -320,7 +321,7 @@ async def refresh(creds: HTTPAuthorizationCredentials = Depends(security)):
 async def get_performance(_: dict = Depends(auth_required)):
     mc = get_metrics_collector()
     t = mc.get_trading_summary()
-    now = datetime.utcnow()
+    now = datetime.now(UTC)
     return Performance(
         totalPnl=float(t.get("net_pnl", 0.0)),
         dailyPnl=0.0,
@@ -339,7 +340,7 @@ async def get_performance(_: dict = Depends(auth_required)):
 async def get_agent_status(_: dict = Depends(auth_required)):
     # minimal status based on orchestrator
     state = "running" if _orchestrator and _orchestrator.state.value == "running" else "stopped"
-    return AgentStatus(state=state, uptime=0, lastAction=datetime.utcnow(), activePositions=0, dailyTrades=0, version="1.0.0")
+    return AgentStatus(state=state, uptime=0, lastAction=datetime.now(UTC), activePositions=0, dailyTrades=0, version="1.0.0")
 
 
 @app.get("/system/health", response_model=SystemHealth)
@@ -388,7 +389,7 @@ async def get_system_health(_: dict = Depends(auth_required)):
         errorRate=0.0,
         uptime=int(s.get("uptime_hours", 0.0) * 3600),
         connections={"database": database_connected, "broker": True, "llm": True, "websocket": True},
-        lastUpdate=datetime.utcnow(),
+        lastUpdate=datetime.now(UTC),
     )
 
 
@@ -438,7 +439,7 @@ async def get_database_diagnostics(_: dict = Depends(auth_required)) -> dict[str
     except Exception as e:
         return {
             "error": str(e),
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             "fallback_mode": get_fallback_mode().get_status()
         }
 

@@ -5,7 +5,7 @@ Comprehensive testing and validation framework integration tests.
 import asyncio
 import json
 import tempfile
-from datetime import datetime
+from datetime import datetime, UTC
 from pathlib import Path
 
 import pytest
@@ -70,7 +70,7 @@ class MockMarketDataProvider:
         return MarketBar(
             symbol=symbol,
             timeframe=Timeframe.HOUR_1,
-            timestamp=datetime.utcnow(),
+            timestamp=datetime.now(UTC),
             open=Decimal("100.0"),
             high=Decimal("101.0"),
             low=Decimal("99.0"),
@@ -178,7 +178,7 @@ class TestComprehensiveValidationFramework:
                 return MarketBar(
                     symbol=symbol,
                     timeframe=timeframe,
-                    timestamp=datetime.utcnow(),
+                    timestamp=datetime.now(UTC),
                     open=100.0,
                     high=101.0,
                     low=99.0,
@@ -199,7 +199,7 @@ class TestComprehensiveValidationFramework:
         paper_engine = PaperTradingEngine(config, data_provider, strategy)
 
         # Run for a short time
-        start_time = datetime.utcnow()
+        start_time = datetime.now(UTC)
         timeout_seconds = 5
 
         try:
@@ -444,7 +444,7 @@ class TestComprehensiveValidationFramework:
 
         # 6. Compile comprehensive validation report
         validation_report = {
-            'test_execution_time': datetime.utcnow().isoformat(),
+            'test_execution_time': datetime.now(UTC).isoformat(),
             'property_tests': {
                 'results': property_results,
                 'summary': property_runner.generate_property_test_report()

@@ -5,6 +5,7 @@ Property-based testing for financial calculations and system invariants.
 import logging
 import random
 from datetime import datetime, timedelta
+from datetime import UTC
 from typing import Any
 
 try:
@@ -103,7 +104,7 @@ def market_bar(draw, symbol="BTCUSD"):
     return MarketBar(
         symbol=symbol,
         timeframe="1h",
-        timestamp=datetime.utcnow(),
+        timestamp=datetime.now(UTC),
         open=open_price,
         high=high,
         low=low,
@@ -291,8 +292,8 @@ class TradingSystemStateMachine(RuleBasedStateMachine):
                 entry_price=position['entry_price'],
                 exit_price=position['entry_price'] + pnl/position['size'],
                 position_size=position['size'],
-                entry_time=datetime.utcnow() - timedelta(hours=1),
-                exit_time=datetime.utcnow(),
+                entry_time=datetime.now(UTC) - timedelta(hours=1),
+                exit_time=datetime.now(UTC),
                 pnl=pnl,
                 commission=position['size'] * 0.001,
                 confidence=0.5,
@@ -522,5 +523,5 @@ class PropertyTestRunner:
             'failed_tests': total_tests - passed_tests,
             'success_rate': passed_tests / total_tests if total_tests > 0 else 0,
             'test_results': self.test_results,
-            'generated_at': datetime.utcnow().isoformat()
+            'generated_at': datetime.now(UTC).isoformat()
         }

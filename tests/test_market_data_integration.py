@@ -4,7 +4,7 @@ Tests end-to-end functionality including data sync, indicator calculations, and 
 """
 
 import asyncio
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, UTC
 from decimal import Decimal
 from unittest.mock import patch
 
@@ -45,7 +45,7 @@ class MockExchangeAdapter(WebSocketAdapter):
 
     async def _send_mock_data(self):
         """Send mock market data"""
-        base_time = datetime.utcnow()
+        base_time = datetime.now(UTC)
         base_price = 50000.0
 
         try:
@@ -83,7 +83,7 @@ class MockExchangeAdapter(WebSocketAdapter):
     async def fetch_historical(self, timeframe: Timeframe, limit: int = 1000) -> list[MarketBar]:
         """Mock historical data fetch"""
         historical_data = []
-        base_time = datetime.utcnow() - timedelta(days=30)
+        base_time = datetime.now(UTC) - timedelta(days=30)
         base_price = 45000.0
 
         for i in range(min(limit, 500)):  # Limit for testing
@@ -257,8 +257,9 @@ class TestMarketDataIntegration:
         self.synchronizer.add_adapter(mock_adapter)
 
         # Send data with clock skew
-        old_timestamp = datetime.utcnow() - timedelta(seconds=5)  # 5 seconds old
-        ohlcv = OHLCV(
+        old_timestamp = datetime.now(UTC) - timedelta(seconds=5)  # 5 seconds old
+        from libs.trading_models.market_data import MarketBar
+        ohlcv = MarketBar(
             timestamp=old_timestamp,
             open=50000, high=50100, low=49900, close=50050, volume=1000
         )
@@ -401,7 +402,7 @@ class TestRealTimeDataFlow:
                 if len(data) >= 200:
                     indicators = synchronizer.indicator_engine.calculate_all_indicators(data)
                     latest_values = synchronizer.indicator_engine.get_latest_values(indicators)
-                    indicator_updates.append((datetime.utcnow(), latest_values))
+                    indicator_updates.append((datetime.now(UTC), latest_values))
 
         synchronizer.add_sync_callback(track_indicators)
 

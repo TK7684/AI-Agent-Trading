@@ -9,7 +9,7 @@ import logging
 import time
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, Optional
+from typi, UTCng import Any, Optional
 
 import aiohttp
 
@@ -31,7 +31,7 @@ class PoeServerResponse:
 
     def __post_init__(self):
         if self.timestamp is None:
-            self.timestamp = datetime.utcnow()
+            self.timestamp = datetime.now(UTC)
 
 class PoeServerBotClient:
     """Client for interacting with Poe server bots."""
@@ -418,7 +418,7 @@ class PoeMultiBotAnalyzer:
             'individual_analyses': analyses,
             'average_response_time': int(avg_response_time),
             'recommendation_strength': 'STRONG' if min(sentiment_agreement, action_agreement) >= 0.67 else 'MODERATE',
-            'timestamp': datetime.utcnow().isoformat()
+            'timestamp': datetime.now(UTC).isoformat()
         }
 
 # Main integration function

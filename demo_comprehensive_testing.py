@@ -10,7 +10,7 @@ import logging
 from datetime import datetime
 from pathlib import Path
 
-from libs.trading_models.backtesting import BacktestConfig, BacktestEngine
+from libs.tradi, UTCng_models.backtesting import BacktestConfig, BacktestEngine
 from libs.trading_models.chaos_testing import ChaosTestRunner
 from libs.trading_models.comprehensive_validation import (
     ValidationConfig,
@@ -378,7 +378,7 @@ class ComprehensiveTestingDemo:
                 return MarketBar(
                     symbol=symbol,
                     timeframe=Timeframe.M15,
-                    timestamp=datetime.utcnow(),
+                    timestamp=datetime.now(UTC),
                     open=Decimal(str(self.price - price_change)),
                     high=Decimal(str(self.price + abs(price_change))),
                     low=Decimal(str(self.price - abs(price_change))),
@@ -556,7 +556,7 @@ class ComprehensiveTestingDemo:
 
         # Collect all results
         report_data = {
-            'demo_execution_time': datetime.utcnow().isoformat(),
+            'demo_execution_time': datetime.now(UTC).isoformat(),
             'framework_components': {
                 'test_data_generation': 'Completed',
                 'property_based_testing': 'Completed',

@@ -1,0 +1,11 @@
+{
+  "network_complete_outage": true,
+  "network_high_latency": false,
+  "llm_service_crash": true,
+  "execution_gateway_hang": true,
+  "memory_exhaustion": true,
+  "cpu_spike": true,
+  "llm_latency_spike": true,
+  "api_rate_limit_spike": false,
+  "market_data_corruption": true
+}

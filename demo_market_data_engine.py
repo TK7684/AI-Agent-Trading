@@ -15,7 +15,7 @@ import logging
 from datetime import datetime, timedelta
 from decimal import Decimal
 
-from libs.trading_models.data_synchronizer import DataSynchronizer, SyncConfiguration
+from libs.tradi, UTCng_models.data_synchronizer import DataSynchronizer, SyncConfiguration
 from libs.trading_models.enums import Timeframe
 from libs.trading_models.market_data import MarketBar
 from libs.trading_models.market_data_ingestion import WebSocketAdapter
@@ -55,7 +55,7 @@ class MockMarketDataAdapter(WebSocketAdapter):
     async def _generate_mock_data(self):
         """Generate realistic mock market data"""
         base_price = 50000.0
-        base_time = datetime.utcnow()
+        base_time = datetime.now(UTC)
 
         try:
             for i in range(200):  # Generate 200 data points
@@ -96,7 +96,7 @@ class MockMarketDataAdapter(WebSocketAdapter):
     async def fetch_historical(self, timeframe: Timeframe, limit: int = 1000) -> list:
         """Generate mock historical data"""
         historical_data = []
-        base_time = datetime.utcnow() - timedelta(days=30)
+        base_time = datetime.now(UTC) - timedelta(days=30)
         base_price = 45000.0
 
         for i in range(min(limit, 300)):
@@ -148,7 +148,7 @@ async def demonstrate_market_data_engine():
     def on_sync_data(sync_data):
         """Callback for synchronized data"""
         sync_events.append({
-            'timestamp': datetime.utcnow(),
+            'timestamp': datetime.now(UTC),
             'timeframes': list(sync_data.keys()),
             'data_counts': {tf: len(data) for tf, data in sync_data.items()}
         })

@@ -502,10 +502,7 @@ class LiveTradingController:
         if self.current_mode == TradingMode.EMERGENCY_STOP:
             return False, "System in emergency stop mode"
 
-        if self.current_mode == TradingMode.PAPER:
-            return True, None  # Paper trading always allowed
-
-        # Check risk limits
+        # Check risk limits (apply to all trading modes)
         if self.total_exposure >= self.config.risk_limits.max_portfolio_exposure:
             return False, f"Portfolio exposure limit reached ({self.total_exposure:.2%})"
 

@@ -11,7 +11,7 @@ import os
 import time
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, Optional
+from typi, UTCng import Any, Optional
 
 import aiohttp
 
@@ -31,7 +31,7 @@ class AIResponse:
 
     def __post_init__(self):
         if self.timestamp is None:
-            self.timestamp = datetime.utcnow()
+            self.timestamp = datetime.now(UTC)
 
 class GeminiClient:
     """Google Gemini API client (FREE tier available)."""
@@ -419,7 +419,7 @@ class SmartAIRouter:
             'individual_analyses': analyses,
             'total_cost': sum(a['cost'] for a in analyses),
             'recommendation_strength': 'STRONG' if min(sentiment_agreement, action_agreement) >= 0.67 else 'MODERATE',
-            'timestamp': datetime.utcnow().isoformat()
+            'timestamp': datetime.now(UTC).isoformat()
         }
 
     def get_usage_stats(self) -> dict[str, Any]:

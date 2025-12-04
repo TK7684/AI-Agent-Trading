@@ -14,7 +14,7 @@ import time
 from datetime import datetime, timedelta
 from decimal import Decimal
 
-from libs.trading_models.enums import Direction
+from libs.tradi, UTCng_models.enums import Direction
 from libs.trading_models.risk_management import (
     PortfolioMetrics,
     Position,
@@ -114,7 +114,7 @@ def demo_correlation_monitoring():
         unrealized_pnl=Decimal("400"),
         initial_risk=Decimal("400"),
         current_risk=Decimal("400"),
-        opened_at=datetime.utcnow()
+        opened_at=datetime.now(UTC)
     )
 
     risk_manager.add_position(existing_position)
@@ -256,7 +256,7 @@ def demo_stop_loss_management():
                 unrealized_pnl=Decimal("0"),
                 initial_risk=Decimal("500"),
                 current_risk=Decimal("500"),
-                opened_at=datetime.utcnow()
+                opened_at=datetime.now(UTC)
             )
         },
         {
@@ -273,7 +273,7 @@ def demo_stop_loss_management():
                 unrealized_pnl=Decimal("0"),
                 initial_risk=Decimal("400"),
                 current_risk=Decimal("400"),
-                opened_at=datetime.utcnow()
+                opened_at=datetime.now(UTC)
             )
         },
         {
@@ -290,7 +290,7 @@ def demo_stop_loss_management():
                 unrealized_pnl=Decimal("0"),
                 initial_risk=Decimal("500"),
                 current_risk=Decimal("500"),
-                opened_at=datetime.utcnow()
+                opened_at=datetime.now(UTC)
             )
         }
     ]
@@ -418,7 +418,7 @@ def demo_comprehensive_risk_assessment():
             unrealized_pnl=Decimal("250"),
             initial_risk=Decimal("250"),
             current_risk=Decimal("250"),
-            opened_at=datetime.utcnow() - timedelta(hours=2)
+            opened_at=datetime.now(UTC) - timedelta(hours=2)
         ),
         Position(
             position_id="pos2",
@@ -431,7 +431,7 @@ def demo_comprehensive_risk_assessment():
             unrealized_pnl=Decimal("150"),
             initial_risk=Decimal("150"),
             current_risk=Decimal("150"),
-            opened_at=datetime.utcnow() - timedelta(hours=1)
+            opened_at=datetime.now(UTC) - timedelta(hours=1)
         )
     ]
 
@@ -589,7 +589,7 @@ def demo_performance_benchmarks():
             unrealized_pnl=Decimal("10"),
             initial_risk=Decimal("50"),
             current_risk=Decimal("50"),
-            opened_at=datetime.utcnow()
+            opened_at=datetime.now(UTC)
         )
         risk_manager.add_position(position)
 

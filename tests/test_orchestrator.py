@@ -561,7 +561,7 @@ class TestIntegrationWorkflow:
     def mock_orchestrator(self):
         """Create orchestrator with mocked components."""
         config = OrchestrationConfig(
-            symbols=["BTCUSDT"], timeframes=["1h"], base_check_interval=60
+            symbols=["BTCUSDT"], timeframes=["1h"], base_check_interval=1200, min_check_interval=900
         )
         orchestrator = Orchestrator(config)
 

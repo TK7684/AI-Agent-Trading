@@ -5,7 +5,7 @@ Tests WebSocket reconnection, data quality, and multi-timeframe sync.
 
 import asyncio
 import json
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, UTC
 from decimal import Decimal
 from unittest.mock import AsyncMock, Mock, patch
 
@@ -370,9 +370,10 @@ class TestTimeframeBuffer:
         """Test buffer max size enforcement"""
         # Add more data than max size
         for i in range(15):
+            # Ensure hour stays within 0-23 range by using modulo
             market_bar = MarketBar(
                 symbol="BTCUSDT", timeframe=Timeframe.H1,
-                timestamp=datetime(2024, 1, 1, 10 + i, 0),
+                timestamp=datetime(2024, 1, 1, (10 + i) % 24, 0),
                 open=Decimal("100"), high=Decimal("101"), low=Decimal("99"),
                 close=Decimal("100.5"), volume=Decimal("1000")
             )
@@ -471,7 +472,7 @@ class TestDataSynchronizer:
         market_bar = MarketBar(
             symbol="BTCUSDT",
             timeframe=Timeframe.M15,
-            timestamp=datetime.utcnow(),
+            timestamp=datetime.now(UTC),
             open=Decimal("100"), high=Decimal("101"), low=Decimal("99"),
             close=Decimal("100.5"), volume=Decimal("1000")
         )
@@ -492,7 +493,7 @@ class TestDataSynchronizer:
     def test_clock_skew_detection(self):
         """Test clock skew detection"""
         # Create MarketBar with old timestamp (should trigger clock skew warning)
-        old_timestamp = datetime.utcnow() - timedelta(seconds=10)  # 10 seconds old
+        old_timestamp = datetime.now(UTC) - timedelta(seconds=10)  # 10 seconds old
         market_bar = MarketBar(
             symbol="BTCUSDT",
             timeframe=Timeframe.M15,
@@ -513,7 +514,7 @@ class TestDataSynchronizer:
     async def test_synchronization_check(self):
         """Test synchronization checking logic"""
         # Add sufficient data to both timeframes
-        now = datetime.utcnow()
+        now = datetime.now(UTC)
 
         for i in range(15):  # More than min_data_points
             for tf in self.timeframes:
@@ -543,7 +544,7 @@ class TestDataSynchronizer:
     def test_get_synchronized_data(self):
         """Test synchronized data retrieval"""
         # Add data and mark as synchronized
-        now = datetime.utcnow()
+        now = datetime.now(UTC)
 
         for i in range(5):
             market_bar = MarketBar(

@@ -8,6 +8,7 @@ import json
 import logging
 import sys
 from datetime import datetime
+from datetime import UTC
 from pathlib import Path
 from typing import Any, Optional
 
@@ -360,7 +361,7 @@ class CIPerformanceValidator:
         results_dir.mkdir(parents=True, exist_ok=True)
 
         validation_report = {
-            'timestamp': datetime.utcnow().isoformat(),
+            'timestamp': datetime.now(UTC).isoformat(),
             'overall_success': overall_success,
             'test_results': {
                 test_name: success for test_name, success in success_criteria

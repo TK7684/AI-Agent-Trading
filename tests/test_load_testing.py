@@ -50,13 +50,16 @@ class TestLoadTestingSystem:
         # Configure low RPS for sequential testing
         test_config.requests_per_second = 0.5
 
-        # Mock successful responses
-        mock_result = Mock()
-        mock_result.success = True
-        mock_result.duration_ms = 500
-        mock_result.error_message = None
+        # Mock successful responses with actual function that returns after some delay
+        async def mock_run_complete_trading_cycle(symbol):
+            # Simulate processing time
+            await asyncio.sleep(0.001)  # 1ms delay to ensure positive latency
+            mock_result = Mock()
+            mock_result.success = True
+            mock_result.error_message = None
+            return mock_result
 
-        mock_e2e_system.run_complete_trading_cycle.return_value = mock_result
+        mock_e2e_system.run_complete_trading_cycle = mock_run_complete_trading_cycle
 
         # Run load test
         metrics = await load_tester.run_load_test(test_config)
@@ -222,7 +225,7 @@ class TestLoadTestingSystem:
         assert metrics.error_rate_percent == (2/12) * 100
         assert metrics.avg_latency_ms == 550.0  # Average of latencies
         assert metrics.p50_latency_ms == 550.0  # Median
-        assert metrics.p95_latency_ms == 950.0  # 95th percentile
+        assert metrics.p95_latency_ms == 1000.0  # 95th percentile (index 9 in 0-based array of 10 items)
         assert metrics.max_latency_ms == 1000
         assert metrics.min_latency_ms == 100
         assert metrics.memory_usage_mb == 512

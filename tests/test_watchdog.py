@@ -4,7 +4,7 @@ Tests for the watchdog functionality and auto-restart capabilities.
 
 import asyncio
 import time
-from datetime import datetime
+from datetime import datetime, UTC
 from unittest.mock import Mock, patch
 
 import pytest
@@ -616,9 +616,9 @@ class TestWatchdog:
 
         # Set components as healthy
         wd.component_states["component1"].status = ComponentStatus.HEALTHY
-        wd.component_states["component1"].start_time = datetime.utcnow()
+        wd.component_states["component1"].start_time = datetime.now(UTC)
         wd.component_states["component2"].status = ComponentStatus.HEALTHY
-        wd.component_states["component2"].start_time = datetime.utcnow()
+        wd.component_states["component2"].start_time = datetime.now(UTC)
 
         health = wd.get_system_health()
 

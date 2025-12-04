@@ -429,7 +429,8 @@ class TestDeploymentManager:
         deployment_manager._start_canary_release = AsyncMock(return_value=True)
         deployment_manager._monitor_canary_release = AsyncMock(return_value=True)
         deployment_manager._complete_full_deployment = AsyncMock(return_value=True)
-        deployment_manager._finalize_deployment = AsyncMock()
+        # Set the state to IDLE in the finalize mock
+        deployment_manager._finalize_deployment = AsyncMock(side_effect=lambda config: setattr(deployment_manager, 'deployment_state', DeploymentState.IDLE))
 
         # Start deployment
         success = await deployment_manager.deploy_version(test_deployment_config)

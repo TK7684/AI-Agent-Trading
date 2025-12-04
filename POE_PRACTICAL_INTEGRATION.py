@@ -9,7 +9,7 @@ import os
 import time
 from dataclasses import dataclass
 from datetime import datetime
-from enum import Enum
+from e, UTCnum import Enum
 from typing import Any, Optional
 
 import aiohttp
@@ -54,7 +54,7 @@ class PoeResponse:
 
     def __post_init__(self):
         if self.timestamp is None:
-            self.timestamp = datetime.utcnow()
+            self.timestamp = datetime.now(UTC)
 
 class PoePointsManager:
     """Manage Poe compute points efficiently."""
@@ -297,7 +297,7 @@ class PoeAIClient:
     def get_usage_summary(self) -> dict[str, Any]:
         """Get usage summary for monitoring."""
         recent_requests = [r for r in self.request_history if
-                          (datetime.utcnow() - r.timestamp).total_seconds() < 3600]
+                          (datetime.now(UTC) - r.timestamp).total_seconds() < 3600]
 
         return {
             'points_used_today': self.points_manager.usage_stats.points_used_today,
@@ -375,7 +375,7 @@ class PoeMultiModelConsensus:
             'total_points_used': total_points,
             'models_consulted': len(successful_analyses),
             'analysis_type': analysis_type,
-            'timestamp': datetime.utcnow().isoformat()
+            'timestamp': datetime.now(UTC).isoformat()
         })
 
         return consensus
