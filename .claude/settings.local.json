@@ -1,0 +1,28 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pnpm db:push:*)",
+      "Bash(npm run db:push:*)",
+      "Bash(npm install:*)",
+      "Bash(pip install:*)",
+      "Bash(python:*)",
+      "Bash(timeout:*)",
+      "Bash(curl:*)",
+      "Bash(ping:*)",
+      "Bash(npm run dev:*)",
+      "Bash(pnpm install:*)",
+      "Bash(docker-compose up:*)",
+      "Bash(docker-compose down:*)",
+      "Bash(docker exec:*)",
+      "Bash(PGPASSWORD=crypto_pass_2024 psql:*)",
+      "Bash(docker logs:*)",
+      "Bash(docker volume rm:*)",
+      "Bash(PGPASSWORD=password psql:*)",
+      "Bash(docker:*)",
+      "Bash(psql:*)",
+      "Bash(npx drizzle-kit generate:*)",
+      "Bash(git remote add:*)",
+      "Bash(git add:*)"
+    ]
+  }
+}

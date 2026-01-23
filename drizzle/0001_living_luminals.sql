@@ -1,0 +1,40 @@
+CREATE TABLE `auditReports` (
+	`id` int AUTO_INCREMENT NOT NULL,
+	`projectId` int NOT NULL,
+	`githubScore` int,
+	`githubData` text,
+	`tokenomicsScore` int,
+	`tokenomicsData` text,
+	`contractRiskScore` int,
+	`contractRiskData` text,
+	`twitterScore` int,
+	`twitterData` text,
+	`telegramScore` int,
+	`telegramData` text,
+	`discordScore` int,
+	`discordData` text,
+	`overallScore` int,
+	`riskLevel` enum('low','medium','high','critical'),
+	`aiAnalysis` text,
+	`createdAt` timestamp NOT NULL DEFAULT (now()),
+	`updatedAt` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
+	CONSTRAINT `auditReports_id` PRIMARY KEY(`id`)
+);
+--> statement-breakpoint
+CREATE TABLE `projects` (
+	`id` int AUTO_INCREMENT NOT NULL,
+	`userId` int NOT NULL,
+	`name` varchar(255) NOT NULL,
+	`description` text,
+	`githubUrl` varchar(512),
+	`contractAddress` varchar(128),
+	`chain` varchar(64),
+	`websiteUrl` varchar(512),
+	`twitterUrl` varchar(512),
+	`telegramUrl` varchar(512),
+	`discordUrl` varchar(512),
+	`status` enum('pending','analyzing','completed','failed') NOT NULL DEFAULT 'pending',
+	`createdAt` timestamp NOT NULL DEFAULT (now()),
+	`updatedAt` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
+	CONSTRAINT `projects_id` PRIMARY KEY(`id`)
+);
