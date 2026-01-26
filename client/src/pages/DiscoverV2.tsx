@@ -3,18 +3,20 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { APP_TITLE, getLoginUrl } from "@/const";
-import { Shield, Loader2, TrendingUp, ExternalLink, Github, Twitter, Globe, MessageCircle, Star, Filter, X } from "lucide-react";
+import { Shield, Loader2, TrendingUp, ExternalLink, Github, Twitter, Globe, MessageCircle, Star, Filter, X, StarOff } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import { useState, useMemo } from "react";
 import { thaiTranslations as t } from "@/i18n/th";
+import { useEffect } from "react";
 
 export default function DiscoverV2() {
   const { user, isAuthenticated, loading: authLoading } = useAuth();
   const [, setLocation] = useLocation();
   const [creatingProjectId, setCreatingProjectId] = useState<string | null>(null);
   const [showFilters, setShowFilters] = useState(false);
+  const [watchlistProjectIds, setWatchlistProjectIds] = useState<Set<number>>(new Set());
   
   // Filters state
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -28,6 +30,40 @@ export default function DiscoverV2() {
   });
 
   const { data: categories } = trpc.discovery.getCategories.useQuery();
+
+  // Watchlist queries and mutations
+  const { data: watchlist, refetch: refetchWatchlist } = trpc.watchlist.list.useQuery(undefined, {
+    enabled: isAuthenticated,
+  });
+
+  const addToWatchlistMutation = trpc.watchlist.add.useMutation({
+    onSuccess: () => {
+      toast.success("Added to watchlist");
+      refetchWatchlist();
+    },
+    onError: (error) => {
+      toast.error(`Failed to add to watchlist: ${error.message}`);
+    },
+  });
+
+  const removeFromWatchlistMutation = trpc.watchlist.remove.useMutation({
+    onSuccess: () => {
+      toast.success("Removed from watchlist");
+      refetchWatchlist();
+    },
+    onError: (error) => {
+      toast.error(`Failed to remove from watchlist: ${error.message}`);
+    },
+  });
+
+  // Update watchlistProjectIds when watchlist data changes
+  useEffect(() => {
+    if (watchlist) {
+      const ids = new Set(watchlist.map((item: any) => item.projectId));
+      setWatchlistProjectIds(ids);
+    }
+  }, [watchlist]);
+
   const sendNotificationMutation = trpc.discovery.sendNotification.useMutation({
     onSuccess: () => {
       toast.success("Send notification to your email successfully!");
@@ -62,6 +98,18 @@ export default function DiscoverV2() {
     // For now, just navigate to audit page
     setLocation(`/audit/${project.id}`);
     setCreatingProjectId(null);
+  };
+
+  const handleWatchlistToggle = (project: any) => {
+    if (!isAuthenticated) {
+      toast.error("Please sign in to add projects to your watchlist");
+      return;
+    }
+
+    // Discovery projects have string IDs (from CoinGecko), but watchlist expects number IDs
+    // We need to create an audit project first before adding to watchlist
+    toast.info("Please create an audit for this project first, then you can add it to your watchlist from the audit page.");
+    setLocation(`/audit/${project.id}`);
   };
 
   const formatNumber = (num: number) => {
@@ -381,8 +429,8 @@ export default function DiscoverV2() {
 
                   {/* Action Buttons */}
                   <div className="flex gap-2 mt-auto">
-                    <Button 
-                      className="flex-1" 
+                    <Button
+                      className="flex-1"
                       onClick={() => handleAuditProject(project)}
                       disabled={creatingProjectId === project.id || !isAuthenticated}
                     >
@@ -398,7 +446,16 @@ export default function DiscoverV2() {
                         </>
                       )}
                     </Button>
-                    <Button 
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleWatchlistToggle(project)}
+                      disabled={!isAuthenticated}
+                      title="Add to watchlist"
+                    >
+                      <Star className="h-4 w-4" />
+                    </Button>
+                    <Button
                       variant="outline"
                       size="sm"
                       onClick={() => {

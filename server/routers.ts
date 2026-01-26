@@ -21,6 +21,7 @@ import { loginUser, registerUser, createSessionToken } from "./_core/auth";
 import { marketDataRouter } from "./routers/marketData";
 import { tradingViewRouter } from "./routers/tradingview";
 import { geminiAnalyzer } from "./services/geminiAnalyzer";
+import { checkForTrendingAlerts, formatAlertForDisplay, resetTrendingState } from "./services/trendingAlerts";
 
 export const appRouter = router({
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -613,6 +614,26 @@ export const appRouter = router({
         return await getUserAlertSettings(ctx.user.id);
       } catch (error) {
         throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Failed to fetch alerts" });
+      }
+    }),
+
+    // Check for new trending alerts
+    checkTrending: protectedProcedure.query(async () => {
+      try {
+        const alerts = await checkForTrendingAlerts();
+        return alerts.map(formatAlertForDisplay);
+      } catch (error) {
+        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Failed to check trending alerts" });
+      }
+    }),
+
+    // Reset trending state (admin only, for testing)
+    resetTrendingState: protectedProcedure.mutation(async () => {
+      try {
+        resetTrendingState();
+        return { success: true };
+      } catch (error) {
+        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Failed to reset trending state" });
       }
     }),
   }),

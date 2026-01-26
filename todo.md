@@ -58,17 +58,17 @@
 - [x] สร้าง Filters: Category, Market Cap Range, Score Range, Status (Trending/New/Hot)
 - [x] เพิ่ม Email Notification System
 - [ ] ปรับปรุง Performance และ Caching
-- [ ] เพิ่ม Watchlist Feature
-- [ ] เพิ่ม Trending Alerts
+- [x] เพิ่ม Watchlist Feature
+- [x] เพิ่ม Trending Alerts
 
 
 ## Level 1: Basic Features Enhancement
-- [ ] สร้าง Watchlist table ใน database
-- [ ] API สำหรับ Add/Remove/List Watchlist
-- [ ] UI สำหรับ Watchlist page
-- [ ] Comparison Tool: Side-by-side comparison
-- [ ] Export Report: PDF generation
-- [ ] Export Report: JSON export
+- [x] สร้าง Watchlist table ใน database
+- [x] API สำหรับ Add/Remove/List Watchlist
+- [x] UI สำหรับ Watchlist page
+- [x] Comparison Tool: Side-by-side comparison
+- [x] Export Report: PDF generation
+- [x] Export Report: JSON export
 
 ## Level 2: Real APIs Integration
 - [ ] Etherscan API integration (Contract verification)

@@ -4,11 +4,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { APP_TITLE, getLoginUrl } from "@/const";
-import { Shield, Loader2, ArrowLeft, Github, Coins, AlertTriangle, Users, TrendingUp, ExternalLink, RefreshCw } from "lucide-react";
+import { Shield, Loader2, ArrowLeft, Github, Coins, AlertTriangle, Users, TrendingUp, ExternalLink, RefreshCw, Download, FileJson, FileText } from "lucide-react";
 import { Link, useParams } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { Streamdown } from "streamdown";
 import { toast } from "sonner";
+import { downloadJSON, downloadPDF, generateFilename } from "@/lib/export";
+import { useState } from "react";
 
 export default function AuditDetail() {
   const { id } = useParams<{ id: string }>();
@@ -28,6 +30,42 @@ export default function AuditDetail() {
       toast.error(`Failed to restart analysis: ${error.message}`);
     },
   });
+
+  const [isExporting, setIsExporting] = useState(false);
+
+  const handleExportJSON = async () => {
+    setIsExporting(true);
+    try {
+      const response = await fetch(
+        `/api/trpc/export.json?input=${encodeURIComponent(JSON.stringify({ projectId: project.id }))}`
+      );
+      if (!response.ok) throw new Error("Export failed");
+      const data = await response.json();
+      downloadJSON(data.result.data.json, generateFilename(project.name, "json"));
+      toast.success("Exported to JSON");
+    } catch (error: any) {
+      toast.error(`Failed to export: ${error.message}`);
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  const handleExportPDF = async () => {
+    setIsExporting(true);
+    try {
+      const response = await fetch(
+        `/api/trpc/export.pdf?input=${encodeURIComponent(JSON.stringify({ projectId: project.id }))}`
+      );
+      if (!response.ok) throw new Error("Export failed");
+      const data = await response.json();
+      downloadPDF(data.result.data.pdfBase64, generateFilename(project.name, "pdf"));
+      toast.success("Exported to PDF");
+    } catch (error: any) {
+      toast.error(`Failed to export: ${error.message}`);
+    } finally {
+      setIsExporting(false);
+    }
+  };
 
   if (authLoading || isLoading) {
     return (
@@ -165,12 +203,44 @@ export default function AuditDetail() {
               <h1 className="text-2xl font-bold">{APP_TITLE}</h1>
             </div>
           </Link>
-          <Link href="/dashboard">
-            <Button variant="ghost">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Dashboard
-            </Button>
-          </Link>
+          <div className="flex items-center gap-2">
+            {project.status === "completed" && (
+              <>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleExportJSON}
+                  disabled={isExporting}
+                >
+                  {isExporting ? (
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  ) : (
+                    <FileJson className="h-4 w-4 mr-2" />
+                  )}
+                  JSON
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleExportPDF}
+                  disabled={isExporting}
+                >
+                  {isExporting ? (
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  ) : (
+                    <FileText className="h-4 w-4 mr-2" />
+                  )}
+                  PDF
+                </Button>
+              </>
+            )}
+            <Link href="/dashboard">
+              <Button variant="ghost">
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Back
+              </Button>
+            </Link>
+          </div>
         </div>
       </header>
 

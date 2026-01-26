@@ -21,15 +21,18 @@ import {
 } from "@/components/ui/sidebar";
 import { APP_LOGO, APP_TITLE, getLoginUrl } from "@/const";
 import { useIsMobile } from "@/hooks/useMobile";
-import { LayoutDashboard, LogOut, PanelLeft, Users } from "lucide-react";
+import { LayoutDashboard, LogOut, PanelLeft, Users, Star, Compass, Scale } from "lucide-react";
 import { CSSProperties, useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
 import { DashboardLayoutSkeleton } from './DashboardLayoutSkeleton';
 import { Button } from "./ui/button";
+import { TrendingAlertsBell } from "./TrendingAlerts";
 
 const menuItems = [
-  { icon: LayoutDashboard, label: "Page 1", path: "/" },
-  { icon: Users, label: "Page 2", path: "/some-path" },
+  { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard" },
+  { icon: Compass, label: "Discover", path: "/discover" },
+  { icon: Star, label: "Watchlist", path: "/watchlist" },
+  { icon: Scale, label: "Compare", path: "/comparison" },
 ];
 
 const SIDEBAR_WIDTH_KEY = "sidebar-width";
@@ -230,7 +233,8 @@ function DashboardLayoutContent({
             </SidebarMenu>
           </SidebarContent>
 
-          <SidebarFooter className="p-3">
+          <SidebarFooter className="p-3 space-y-2">
+            <TrendingAlertsBell />
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button className="flex items-center gap-3 rounded-lg px-1 py-1 hover:bg-accent/50 transition-colors w-full text-left group-data-[collapsible=icon]:justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-ring">
@@ -284,6 +288,7 @@ function DashboardLayoutContent({
                 </div>
               </div>
             </div>
+            <TrendingAlertsBell />
           </div>
         )}
         <main className="flex-1 p-4">{children}</main>

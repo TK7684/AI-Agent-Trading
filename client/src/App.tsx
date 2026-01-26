@@ -9,6 +9,8 @@ import Dashboard from "./pages/Dashboard";
 import NewAudit from "./pages/NewAudit";
 import AuditDetail from "./pages/AuditDetail";
 import DiscoverV2 from "./pages/DiscoverV2";
+import Watchlist from "./pages/Watchlist";
+import Comparison from "./pages/Comparison";
 
 function Router() {
   // make sure to consider if you need authentication for certain routes
@@ -17,6 +19,9 @@ function Router() {
       <Route path={"/"} component={Home} />
       <Route path="/discover" component={DiscoverV2} />
       <Route path="/dashboard" component={Dashboard} />
+      <Route path="/watchlist" component={Watchlist} />
+      <Route path="/comparison" component={Comparison} />
+      <Route path="/comparison/:id" component={Comparison} />
       <Route path="/new-audit" component={NewAudit} />
       <Route path="/audit/:id" component={AuditDetail} />
       <Route path={"/404"} component={NotFound} />
