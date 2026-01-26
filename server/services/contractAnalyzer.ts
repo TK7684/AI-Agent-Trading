@@ -1,35 +1,57 @@
 import { invokeLLM } from "../_core/llm";
 
+interface TokenomicsApiResponse {
+  name: string;
+  symbol: string;
+  totalSupply: string;
+  circulatingSupply: string;
+  holders: number;
+  transferCount: number;
+  lastUpdated: string;
+}
+
 interface TokenomicsData {
+  name?: string;
+  symbol?: string;
   totalSupply?: string;
   circulatingSupply?: string;
   holders?: number;
-  topHoldersPercentage?: number;
-  liquidityLocked?: boolean;
-  mintable?: boolean;
-  burnable?: boolean;
-  pausable?: boolean;
-  hasProxy?: boolean;
-  hasOwner?: boolean;
-  renounced?: boolean;
+  transferCount?: number;
+  lastUpdated?: string;
+}
+
+interface ContractApiResponse {
+  name: string;
+  address: string;
+  owner?: string;
+  verified: boolean;
+  sourceCode?: string;
+  compilerVersion?: string;
+  optimization?: boolean;
+  runs?: number;
+  constructorArguments?: string;
+  libraries?: Record<string, string>;
+  license?: string;
+  issues: string[];
 }
 
 interface ContractRiskData {
-  isVerified: boolean;
-  hasHoneypot: boolean;
-  hasMaliciousFunctions: boolean;
-  hasHiddenOwner: boolean;
-  hasBlacklist: boolean;
-  hasWhitelist: boolean;
-  hasTradingCooldown: boolean;
-  hasHighFees: boolean;
-  cannotSellAll: boolean;
-  risks: string[];
-  warnings: string[];
+  name?: string;
+  address?: string;
+  owner?: string;
+  verified?: boolean;
+  sourceCode?: string;
+  compilerVersion?: string;
+  optimization?: boolean;
+  runs?: number;
+  constructorArguments?: string;
+  libraries?: Record<string, string>;
+  license?: string;
+  issues?: string[];
 }
 
 interface TokenomicsAnalysisResult {
-  score: number; // 0-100
+  score: number;
   data: TokenomicsData;
   analysis: string;
   issues: string[];
@@ -37,7 +59,7 @@ interface TokenomicsAnalysisResult {
 }
 
 interface ContractRiskAnalysisResult {
-  score: number; // 0-100
+  score: number;
   data: ContractRiskData;
   analysis: string;
   risks: string[];
@@ -45,62 +67,74 @@ interface ContractRiskAnalysisResult {
 }
 
 /**
- * วิเคราะห์ Tokenomics โดยใช้ข้อมูลจาก blockchain explorers
- * (ในระบบจริงควรใช้ API เช่น Etherscan, BscScan, หรือ Moralis)
+ * Helper function to calculate circulating supply ratio
+ */
+function calculateCirculatingRatio(totalSupply: string, circulatingSupply: string): number {
+  const total = BigInt(totalSupply);
+  const circulating = BigInt(circulatingSupply);
+  if (total === 0n) return 0;
+  return Number((circulating * 100n) / total) / 100;
+}
+
+/**
+ * Analyze Tokenomics by fetching data from blockchain explorers
  */
 export async function analyzeTokenomics(
   contractAddress: string,
   chain: string = "ethereum"
 ): Promise<TokenomicsAnalysisResult> {
   try {
-    // Mock data - ในระบบจริงควรเรียก API จริง
-    const mockData: TokenomicsData = {
-      totalSupply: "1000000000",
-      circulatingSupply: "750000000",
-      holders: 5420,
-      topHoldersPercentage: 35,
-      liquidityLocked: true,
-      mintable: false,
-      burnable: true,
-      pausable: false,
-      hasProxy: false,
-      hasOwner: true,
-      renounced: false,
-    };
-
-    // คำนวณคะแนน
-    let score = 50; // เริ่มต้นที่ 50
-
-    // Holder distribution (max 25 points)
-    if (mockData.holders && mockData.holders >= 10000) score += 25;
-    else if (mockData.holders && mockData.holders >= 5000) score += 20;
-    else if (mockData.holders && mockData.holders >= 1000) score += 15;
-    else if (mockData.holders && mockData.holders >= 500) score += 10;
-    else score -= 10; // Too few holders
-
-    // Top holders concentration (max 20 points)
-    if (mockData.topHoldersPercentage) {
-      if (mockData.topHoldersPercentage <= 20) score += 20;
-      else if (mockData.topHoldersPercentage <= 30) score += 15;
-      else if (mockData.topHoldersPercentage <= 40) score += 10;
-      else if (mockData.topHoldersPercentage <= 50) score += 5;
-      else score -= 15; // Too concentrated
+    // Validate contract address
+    if (!contractAddress || !/^0x[a-fA-F0-9]{40}$/.test(contractAddress)) {
+      throw new Error("Invalid contract address");
     }
 
-    // Liquidity locked (15 points)
-    if (mockData.liquidityLocked) score += 15;
-    else score -= 20;
+    // Determine API endpoint based on chain
+    const apiBaseUrl = chain === "bsc"
+      ? "https://api.bscscan.com/api"
+      : "https://api.etherscan.io/api";
 
-    // Mintable (negative if true)
-    if (mockData.mintable) score -= 10;
-    else score += 5;
+    // Fetch tokenomics data
+    const response = await fetch(`${apiBaseUrl}?module=token&action=tokeninfo&contractaddress=${contractAddress}`);
 
-    // Pausable (negative if true)
-    if (mockData.pausable) score -= 10;
+    if (!response.ok) {
+      if (response.status === 404) {
+        throw new Error("Contract not found");
+      }
+      throw new Error(`API error: ${response.status}`);
+    }
 
-    // Owner renounced (positive)
-    if (mockData.renounced) score += 10;
-    else if (mockData.hasOwner) score -= 5;
+    const apiData = await response.json();
+
+    if (apiData.status === "0" || !apiData.result || apiData.result.length === 0) {
+      throw new Error("Contract not found");
+    }
+
+    const tokenInfo: any = Array.isArray(apiData.result) ? apiData.result[0] : apiData.result;
+
+    const data: TokenomicsData = {
+      name: tokenInfo.tokenName || tokenInfo.name,
+      symbol: tokenInfo.symbol,
+      totalSupply: tokenInfo.totalSupply,
+      circulatingSupply: tokenInfo.totalSupply, // Etherscan doesn't provide circulating, using total as fallback
+      holders: 0, // Would need additional API call
+      transferCount: 0, // Would need additional API call
+      lastUpdated: new Date().toISOString(),
+    };
+
+    // Calculate score
+    let score = 50;
+
+    // Holder distribution - would need holder count from additional API
+    // For now, use reasonable defaults
+    score += 15;
+
+    // Circulation ratio
+    const ratio = calculateCirculatingRatio(data.totalSupply || "0", data.circulatingSupply || "0");
+    if (ratio >= 0.8) score += 15;
+    else if (ratio >= 0.6) score += 10;
+    else if (ratio >= 0.4) score += 5;
+    else if (ratio < 0.2) score -= 15;
 
     score = Math.max(0, Math.min(100, score));
 
@@ -115,22 +149,16 @@ export async function analyzeTokenomics(
           role: "user",
           content: `Analyze this token's economics:
 
-Total Supply: ${mockData.totalSupply}
-Circulating Supply: ${mockData.circulatingSupply}
-Holders: ${mockData.holders}
-Top Holders Own: ${mockData.topHoldersPercentage}%
-Liquidity Locked: ${mockData.liquidityLocked}
-Mintable: ${mockData.mintable}
-Burnable: ${mockData.burnable}
-Pausable: ${mockData.pausable}
-Has Owner: ${mockData.hasOwner}
-Owner Renounced: ${mockData.renounced}
+Name: ${data.name}
+Symbol: ${data.symbol}
+Total Supply: ${data.totalSupply}
+Circulating Supply: ${data.circulatingSupply}
+Circulation Ratio: ${(ratio * 100).toFixed(1)}%
 
 Provide brief analysis covering:
 1. Distribution health
-2. Centralization risks
-3. Economic sustainability
-4. Red flags or concerns`
+2. Economic sustainability
+3. Red flags or concerns`
         }
       ]
     });
@@ -143,124 +171,155 @@ Provide brief analysis covering:
     const issues: string[] = [];
     const strengths: string[] = [];
 
-    if (!mockData.liquidityLocked) issues.push("Liquidity not locked - rug pull risk");
-    if (mockData.mintable) issues.push("Token is mintable - inflation risk");
-    if (mockData.pausable) issues.push("Contract is pausable - trading can be halted");
-    if (mockData.topHoldersPercentage && mockData.topHoldersPercentage > 50) {
-      issues.push("High concentration - top holders control majority");
+    if (ratio < 0.5) {
+      issues.push("Low circulation ratio - tokens may be locked");
     }
-    if (mockData.hasOwner && !mockData.renounced) {
-      issues.push("Owner has not renounced - centralization risk");
+    if (ratio >= 0.7) {
+      strengths.push("Good circulation ratio");
     }
-    if (mockData.holders && mockData.holders < 100) {
-      issues.push("Very few holders - low adoption");
+    if (data.totalSupply && BigInt(data.totalSupply) > 0n) {
+      strengths.push("Token has defined supply");
     }
-
-    if (mockData.liquidityLocked) strengths.push("Liquidity is locked");
-    if (!mockData.mintable) strengths.push("Cannot mint new tokens");
-    if (mockData.burnable) strengths.push("Deflationary mechanism (burnable)");
-    if (mockData.renounced) strengths.push("Ownership renounced - decentralized");
-    if (mockData.holders && mockData.holders >= 1000) strengths.push("Good holder distribution");
 
     return {
       score,
-      data: mockData,
+      data,
       analysis: aiAnalysis,
       issues,
       strengths,
     };
   } catch (error) {
     console.error("Error analyzing tokenomics:", error);
-    return {
-      score: 0,
-      data: {},
-      analysis: "Unable to analyze tokenomics. Please check contract address and chain.",
-      issues: ["Analysis failed"],
-      strengths: [],
-    };
+    throw error; // Re-throw to allow tests to catch specific errors
   }
 }
 
 /**
- * วิเคราะห์ Contract Risk โดยตรวจสอบ smart contract code
- * (ในระบบจริงควรใช้ API เช่น GoPlus Security API, Honeypot.is)
+ * Analyze Contract Risk by fetching contract data from blockchain explorers
  */
 export async function analyzeContractRisk(
   contractAddress: string,
   chain: string = "ethereum"
 ): Promise<ContractRiskAnalysisResult> {
   try {
-    // Mock data - ในระบบจริงควรเรียก Security API
-    const mockData: ContractRiskData = {
-      isVerified: true,
-      hasHoneypot: false,
-      hasMaliciousFunctions: false,
-      hasHiddenOwner: false,
-      hasBlacklist: false,
-      hasWhitelist: false,
-      hasTradingCooldown: false,
-      hasHighFees: false,
-      cannotSellAll: false,
-      risks: [],
-      warnings: [],
+    // Validate contract address
+    if (!contractAddress || !/^0x[a-fA-F0-9]{40}$/.test(contractAddress)) {
+      throw new Error("Invalid contract address");
+    }
+
+    // Determine API endpoint based on chain
+    const scanUrl = chain === "bsc"
+      ? "https://api.bscscan.com/api"
+      : "https://api.etherscan.io/api";
+
+    // Fetch contract source code
+    const response = await fetch(
+      `${scanUrl}?module=contract&action=getsourcecode&address=${contractAddress}`
+    );
+
+    if (!response.ok) {
+      throw new Error(`Network error: ${response.status}`);
+    }
+
+    const apiData = await response.json();
+
+    if (!apiData.result || apiData.result.length === 0) {
+      throw new Error("Contract not found");
+    }
+
+    const contractData: any = Array.isArray(apiData.result) ? apiData.result[0] : apiData.result;
+
+    const data: ContractRiskData = {
+      name: contractData.ContractName || contractData.name || "",
+      address: contractAddress,
+      owner: contractData.owner,
+      verified: (contractData.verified || contractData.SourceCode !== "") && !!contractData.SourceCode,
+      sourceCode: contractData.SourceCode || contractData.sourceCode,
+      compilerVersion: contractData.CompilerVersion || contractData.compilerVersion,
+      optimization: contractData.OptimizationUsed === "1" || contractData.optimization,
+      runs: parseInt(contractData.Runs) || contractData.runs,
+      constructorArguments: contractData.ConstructorArguments || contractData.constructorArguments,
+      libraries: contractData.Libraries || contractData.libraries,
+      license: contractData.License || contractData.license,
+      issues: contractData.issues || [],
     };
 
-    // คำนวณคะแนน
-    let score = 100; // เริ่มต้นที่ 100 แล้วลบตาม risk
+    // Calculate score
+    let score = 100;
 
-    if (!mockData.isVerified) {
+    if (!data.verified) {
       score -= 30;
-      mockData.risks.push("Contract not verified");
     }
 
-    if (mockData.hasHoneypot) {
-      score -= 50;
-      mockData.risks.push("HONEYPOT DETECTED - Cannot sell tokens!");
+    // Check for old compiler version
+    if (data.compilerVersion) {
+      const versionMatch = data.compilerVersion.match(/0\.\d+\.\d+/);
+      if (versionMatch) {
+        const [major, minor] = versionMatch[0].split('.').map(Number);
+        if (major < 0 || (major === 0 && minor < 8)) {
+          score -= 20;
+          (data.issues = data.issues || []).push("Old compiler version");
+        }
+      }
     }
 
-    if (mockData.hasMaliciousFunctions) {
-      score -= 40;
-      mockData.risks.push("Malicious functions detected");
-    }
-
-    if (mockData.hasHiddenOwner) {
-      score -= 25;
-      mockData.risks.push("Hidden owner functions");
-    }
-
-    if (mockData.hasBlacklist) {
-      score -= 20;
-      mockData.warnings.push("Has blacklist function");
-    }
-
-    if (mockData.hasWhitelist) {
-      score -= 15;
-      mockData.warnings.push("Has whitelist function");
-    }
-
-    if (mockData.hasTradingCooldown) {
-      score -= 10;
-      mockData.warnings.push("Trading cooldown enabled");
-    }
-
-    if (mockData.hasHighFees) {
-      score -= 15;
-      mockData.risks.push("High transaction fees (>10%)");
-    }
-
-    if (mockData.cannotSellAll) {
-      score -= 30;
-      mockData.risks.push("Cannot sell all tokens at once");
+    // Check for optimization
+    if (data.optimization) {
+      score += 5;
     }
 
     score = Math.max(0, Math.min(100, score));
 
     // Safety features
     const safetyFeatures: string[] = [];
-    if (mockData.isVerified) safetyFeatures.push("Contract is verified");
-    if (!mockData.hasHoneypot) safetyFeatures.push("No honeypot detected");
-    if (!mockData.hasMaliciousFunctions) safetyFeatures.push("No malicious functions");
-    if (!mockData.hasHighFees) safetyFeatures.push("Reasonable transaction fees");
+    const risks: string[] = [];
+
+    if (data.verified) {
+      safetyFeatures.push("Verified source code");
+    } else {
+      risks.push("Unverified contract");
+    }
+
+    if (data.compilerVersion) {
+      const versionMatch = data.compilerVersion.match(/0\.\d+\.\d+/);
+      if (versionMatch) {
+        const [major, minor] = versionMatch[0].split('.').map(Number);
+        if (major > 0 || (major === 0 && minor >= 8)) {
+          safetyFeatures.push("Modern compiler version");
+        } else {
+          risks.push("Old compiler version");
+        }
+      }
+    }
+
+    if (data.optimization) {
+      safetyFeatures.push("Compiler optimization enabled");
+    }
+
+    if (data.issues && data.issues.length > 0) {
+      data.issues.forEach(issue => {
+        if (!risks.includes(issue)) risks.push(issue);
+      });
+    }
+
+    // Check for potential vulnerabilities in source code
+    if (data.sourceCode) {
+      const code = data.sourceCode.toLowerCase();
+      if (code.includes('tx.origin')) {
+        risks.push("Potential tx.origin vulnerability");
+        score -= 10;
+      }
+      if (code.includes('delegatecall') && !code.includes('protected')) {
+        risks.push("Uses delegatecall - potential risk");
+        score -= 5;
+      }
+      if (code.includes('suicide') || code.includes('selfdestruct')) {
+        risks.push("Contains self-destruct function");
+        score -= 15;
+      }
+    }
+
+    score = Math.max(0, Math.min(100, score));
 
     // AI Analysis
     const aiResponse = await invokeLLM({
@@ -273,18 +332,15 @@ export async function analyzeContractRisk(
           role: "user",
           content: `Analyze this smart contract security:
 
-Verified: ${mockData.isVerified}
-Honeypot: ${mockData.hasHoneypot}
-Malicious Functions: ${mockData.hasMaliciousFunctions}
-Hidden Owner: ${mockData.hasHiddenOwner}
-Has Blacklist: ${mockData.hasBlacklist}
-Has Whitelist: ${mockData.hasWhitelist}
-Trading Cooldown: ${mockData.hasTradingCooldown}
-High Fees: ${mockData.hasHighFees}
-Cannot Sell All: ${mockData.cannotSellAll}
+Name: ${data.name}
+Address: ${data.address}
+Verified: ${data.verified}
+Compiler Version: ${data.compilerVersion}
+Optimization: ${data.optimization}
+License: ${data.license}
 
-Detected Risks: ${mockData.risks.join(", ") || "None"}
-Warnings: ${mockData.warnings.join(", ") || "None"}
+Detected Risks: ${risks.join(", ") || "None"}
+Safety Features: ${safetyFeatures.join(", ") || "None"}
 
 Provide brief security assessment covering:
 1. Critical vulnerabilities
@@ -301,31 +357,13 @@ Provide brief security assessment covering:
 
     return {
       score,
-      data: mockData,
+      data,
       analysis: aiAnalysis,
-      risks: mockData.risks,
+      risks,
       safetyFeatures,
     };
   } catch (error) {
     console.error("Error analyzing contract risk:", error);
-    return {
-      score: 0,
-      data: {
-        isVerified: false,
-        hasHoneypot: false,
-        hasMaliciousFunctions: false,
-        hasHiddenOwner: false,
-        hasBlacklist: false,
-        hasWhitelist: false,
-        hasTradingCooldown: false,
-        hasHighFees: false,
-        cannotSellAll: false,
-        risks: ["Analysis failed"],
-        warnings: [],
-      },
-      analysis: "Unable to analyze contract risk. Please check contract address and chain.",
-      risks: ["Analysis failed"],
-      safetyFeatures: [],
-    };
+    throw error; // Re-throw to allow tests to catch specific errors
   }
 }

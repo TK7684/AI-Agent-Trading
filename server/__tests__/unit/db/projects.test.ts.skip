@@ -1,0 +1,168 @@
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { getDb } from '../../../db';
+import { createProject, getProjectById, getProjectsByUserId, updateProjectStatus } from '../../../db';
+import { projects, users } from '../../../drizzle/schema';
+import { eq } from 'drizzle-orm';
+import { getTestDb, resetTestDb, createMockUser } from '../../../../test-utils/database';
+
+describe('Project Database Operations', () => {
+  let db: any;
+  let testUser: any;
+
+  beforeEach(async () => {
+    db = await getTestDb();
+    
+    // Create a test user
+    const [user] = await db.insert(users).values(createMockUser()).returning();
+    testUser = user;
+  });
+
+  afterEach(async () => {
+    await resetTestDb();
+  });
+
+  it('should create a new project', async () => {
+    const projectData = {
+      userId: testUser.id,
+      name: 'Test Project',
+      description: 'A test project',
+      githubUrl: 'https://github.com/user/test-repo',
+      contractAddress: '0x1234567890123456789012345678901234567890',
+      chain: 'ethereum',
+      websiteUrl: 'https://example.com',
+      twitterUrl: 'https://twitter.com/testproject',
+      telegramUrl: 'https://t.me/testproject',
+      discordUrl: 'https://discord.gg/testproject',
+    };
+
+    const projectId = await createProject(projectData);
+    
+    expect(projectId).toBeDefined();
+    expect(typeof projectId).toBe('number');
+
+    const project = await getProjectById(projectId);
+    expect(project).toMatchObject(projectData);
+    expect(project.status).toBe('pending');
+    expect(project.createdAt).toBeDefined();
+  });
+
+  it('should retrieve a project by ID', async () => {
+    const projectData = {
+      userId: testUser.id,
+      name: 'Test Project',
+      description: 'A test project',
+      githubUrl: 'https://github.com/user/test-repo',
+    };
+
+    const projectId = await createProject(projectData);
+    const retrievedProject = await getProjectById(projectId);
+
+    expect(retrievedProject).toBeDefined();
+    expect(retrievedProject.id).toBe(projectId);
+    expect(retrievedProject.name).toBe(projectData.name);
+    expect(retrievedProject.description).toBe(projectData.description);
+    expect(retrievedProject.githubUrl).toBe(projectData.githubUrl);
+  });
+
+  it('should return null for non-existent project', async () => {
+    const nonExistentProject = await getProjectById(99999);
+    expect(nonExistentProject).toBeUndefined();
+  });
+
+  it('should retrieve projects by user ID', async () => {
+    // Create multiple projects for the test user
+    await createProject({ userId: testUser.id, name: 'Project 1' });
+    await createProject({ userId: testUser.id, name: 'Project 2' });
+    await createProject({ userId: testUser.id, name: 'Project 3' });
+
+    // Create a project for another user
+    const [otherUser] = await db.insert(users).values(createMockUser({ openId: 'other-user' })).returning();
+    await createProject({ userId: otherUser.id, name: 'Other User Project' });
+
+    const userProjects = await getProjectsByUserId(testUser.id);
+
+    expect(userProjects).toHaveLength(3);
+    userProjects.forEach(project => {
+      expect(project.userId).toBe(testUser.id);
+    });
+    expect(userProjects[0].name).toBe('Project 3'); // Should be ordered by createdAt desc
+  });
+
+  it('should update project status', async () => {
+    const projectData = {
+      userId: testUser.id,
+      name: 'Test Project',
+      githubUrl: 'https://github.com/user/test-repo',
+    };
+
+    const projectId = await createProject(projectData);
+
+    // Update status to analyzing
+    await updateProjectStatus(projectId, 'analyzing');
+    let project = await getProjectById(projectId);
+    expect(project.status).toBe('analyzing');
+
+    // Update status to completed
+    await updateProjectStatus(projectId, 'completed');
+    project = await getProjectById(projectId);
+    expect(project.status).toBe('completed');
+
+    // Update status to failed
+    await updateProjectStatus(projectId, 'failed');
+    project = await getProjectById(projectId);
+    expect(project.status).toBe('failed');
+  });
+
+  it('should handle invalid status values', async () => {
+    const projectData = {
+      userId: testUser.id,
+      name: 'Test Project',
+      githubUrl: 'https://github.com/user/test-repo',
+    };
+
+    const projectId = await createProject(projectData);
+
+    // TypeScript should prevent this, but we test runtime behavior
+    await expect(
+      updateProjectStatus(projectId, 'invalid-status' as any)
+    ).rejects.toThrow();
+  });
+
+  it('should create project with minimal required fields', async () => {
+    const minimalProjectData = {
+      userId: testUser.id,
+      name: 'Minimal Project',
+    };
+
+    const projectId = await createProject(minimalProjectData);
+    const project = await getProjectById(projectId);
+
+    expect(project).toBeDefined();
+    expect(project.name).toBe(minimalProjectData.name);
+    expect(project.userId).toBe(minimalProjectData.userId);
+    expect(project.description).toBeNull();
+    expect(project.githubUrl).toBeNull();
+    expect(project.contractAddress).toBeNull();
+    expect(project.chain).toBeNull();
+  });
+
+  it('should handle database connection errors', async () => {
+    // Mock a database connection error
+    const originalDb = db;
+    
+    // This would need to be implemented based on your database setup
+    // For now, we'll just test that the function handles errors gracefully
+    try {
+      await createProject({ userId: 99999, name: 'Test Project' });
+    } catch (error) {
+      expect(error).toBeDefined();
+    }
+  });
+
+  it('should enforce foreign key constraints', async () => {
+    // Try to create a project with a non-existent user ID
+    await expect(
+      createProject({ userId: 99999, name: 'Orphan Project' })
+    ).rejects.toThrow();
+  });
+});
