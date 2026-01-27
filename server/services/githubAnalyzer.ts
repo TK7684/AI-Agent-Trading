@@ -1,4 +1,5 @@
 import { invokeLLM } from "../_core/llm";
+import { getCachedGitHubAnalysis, setCachedGitHubAnalysis } from "./analysisCache";
 
 interface GitHubRepoData {
   stars: number;
@@ -161,6 +162,12 @@ function calculateGitHubScore(data: GitHubRepoData): number {
  * วิเคราะห์ GitHub repository ด้วย AI
  */
 export async function analyzeGitHub(githubUrl: string): Promise<GitHubAnalysisResult> {
+  // Check cache first
+  const cached = await getCachedGitHubAnalysis(githubUrl);
+  if (cached) {
+    return cached;
+  }
+
   // Fetch GitHub data
   const data = await fetchGitHubData(githubUrl);
   
@@ -243,11 +250,16 @@ Keep response concise and focused on security/reliability aspects.`
   if (daysSinceLastCommit <= 30) strengths.push("Active development");
   if (data.hasLicense) strengths.push("Proper licensing");
   
-  return {
+  const result = {
     score,
     data,
     analysis: aiAnalysis,
     issues,
     strengths,
   };
+
+  // Cache the result
+  await setCachedGitHubAnalysis(githubUrl, result);
+
+  return result;
 }

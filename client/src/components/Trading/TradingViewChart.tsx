@@ -160,11 +160,18 @@ export function SymbolOverview({
     script.innerHTML = JSON.stringify(config);
 
     containerRef.current.innerHTML = "";
-    containerRef.current.appendChild(
-      <div className="tradingview-widget-container" style={{ height: "100%", width: "100%" }}>
-        <div className="tradingview-widget-container__widget" style={{ height, width: "100%" }}></div>
-      </div>
-    );
+    const widgetContainer = document.createElement("div");
+    widgetContainer.className = "tradingview-widget-container";
+    widgetContainer.style.height = "100%";
+    widgetContainer.style.width = "100%";
+
+    const widget = document.createElement("div");
+    widget.className = "tradingview-widget-container__widget";
+    widget.style.height = typeof height === "number" ? `${height}px` : height;
+    widget.style.width = "100%";
+
+    widgetContainer.appendChild(widget);
+    containerRef.current.appendChild(widgetContainer);
     containerRef.current.appendChild(script);
 
     return () => {

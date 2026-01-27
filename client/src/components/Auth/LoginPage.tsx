@@ -4,7 +4,7 @@
  */
 
 import { useState } from "react";
-import { useNavigate } from "wouter";
+import { useLocation } from "wouter";
 import { trpc } from "../../lib/trpc";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
@@ -14,7 +14,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../components/ui/ta
 import { toast } from "sonner";
 
 export function LoginPage() {
-  const navigate = useNavigate();
+  const [, navigate] = useLocation();
   const [isLoading, setIsLoading] = useState(false);
 
   // Login mutation
@@ -87,7 +87,7 @@ export function LoginPage() {
           <Tabs defaultValue="login" className="w-full">
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="login">Login</TabsTrigger>
-              <TabsTrigger value="register">Register</TabsTrigger>
+              <TabsTrigger value="register" data-testid="signup-link">Register</TabsTrigger>
             </TabsList>
 
             {/* Login Tab */}
@@ -102,6 +102,7 @@ export function LoginPage() {
                     placeholder="your@email.com"
                     required
                     disabled={isLoading}
+                    data-testid="email-input"
                   />
                 </div>
                 <div className="space-y-2">
@@ -113,9 +114,10 @@ export function LoginPage() {
                     placeholder="••••••••"
                     required
                     disabled={isLoading}
+                    data-testid="password-input"
                   />
                 </div>
-                <Button type="submit" className="w-full" disabled={isLoading}>
+                <Button type="submit" className="w-full" disabled={isLoading} data-testid="login-button">
                   {isLoading ? "Logging in..." : "Login"}
                 </Button>
               </form>
@@ -123,7 +125,7 @@ export function LoginPage() {
 
             {/* Register Tab */}
             <TabsContent value="register">
-              <form onSubmit={handleRegister} className="space-y-4">
+              <form onSubmit={handleRegister} className="space-y-4" data-testid="signup-form">
                 <div className="space-y-2">
                   <Label htmlFor="register-name">Name (optional)</Label>
                   <Input
@@ -143,6 +145,7 @@ export function LoginPage() {
                     placeholder="your@email.com"
                     required
                     disabled={isLoading}
+                    data-testid="email-input"
                   />
                 </div>
                 <div className="space-y-2">
@@ -155,6 +158,7 @@ export function LoginPage() {
                     required
                     minLength={8}
                     disabled={isLoading}
+                    data-testid="password-input"
                   />
                   <p className="text-xs text-muted-foreground">
                     Password must be at least 8 characters

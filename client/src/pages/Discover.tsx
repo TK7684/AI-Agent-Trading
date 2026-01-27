@@ -151,7 +151,7 @@ export default function Discover() {
         ) : (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {projects.map((project) => (
-              <Card key={project.id} className="hover:shadow-lg transition-all hover:border-primary/50">
+              <Card key={project.id} className="hover:shadow-lg transition-all hover:border-primary/50" data-testid="project-card">
                 <CardHeader>
                   <div className="flex items-start justify-between mb-2">
                     <div className="flex-1">
@@ -164,7 +164,10 @@ export default function Discover() {
                       <div className="flex items-center gap-2 text-sm text-muted-foreground">
                         <span>Rank #{project.rank}</span>
                         <span>•</span>
-                        <span className={project.priceChange24h >= 0 ? "text-green-500" : "text-red-500"}>
+                        <span
+                          className={project.priceChange24h >= 0 ? "text-green-500" : "text-red-500"}
+                          data-testid="price-change"
+                        >
                           {project.priceChange24h >= 0 ? "+" : ""}
                           {project.priceChange24h.toFixed(2)}%
                         </span>
@@ -249,10 +252,11 @@ export default function Discover() {
                   </div>
 
                   {/* Action Button */}
-                  <Button 
-                    className="w-full" 
+                  <Button
+                    className="w-full"
                     onClick={() => handleAuditProject(project)}
                     disabled={creatingProjectId === project.id || !isAuthenticated}
+                    data-testid="audit-button"
                   >
                     {creatingProjectId === project.id ? (
                       <>

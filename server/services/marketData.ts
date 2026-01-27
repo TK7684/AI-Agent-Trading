@@ -359,27 +359,84 @@ class FreeMarketDataService {
 export const marketDataService = new FreeMarketDataService();
 
 /**
- * Cache market data in Redis for faster access
+ * In-memory cache fallback when Redis is not available
+ */
+const inMemoryCache = new Map<string, { data: any; expiry: number }>();
+const IN_MEMORY_TTL = 60000; // 60 seconds
+
+function getFromInMemoryCache(key: string): any | null {
+  const cached = inMemoryCache.get(key);
+  if (cached && cached.expiry > Date.now()) {
+    return cached.data;
+  }
+  if (cached) {
+    inMemoryCache.delete(key);
+  }
+  return null;
+}
+
+function setInMemoryCache(key: string, data: any): void {
+  inMemoryCache.set(key, {
+    data,
+    expiry: Date.now() + IN_MEMORY_TTL,
+  });
+}
+
+/**
+ * Cache market data using Redis or in-memory fallback
  * This prevents hitting API rate limits
  */
 export async function getCachedMarketData(symbol: string): Promise<PriceData | null> {
-  // TODO: Implement Redis caching
-  // For now, just fetch fresh data
-  return marketDataService.getDetailedMarketData(symbol);
+  const cacheKey = `market:price:${symbol}`;
+
+  // Try Redis first (imported dynamically to avoid circular deps)
+  try {
+    const { cacheService } = await import('./cacheService');
+    const cached = await cacheService.getPrice(symbol);
+    if (cached) {
+      return cached;
+    }
+  } catch (error) {
+    console.warn('[MarketData] Redis cache unavailable, using in-memory fallback');
+  }
+
+  // Fallback to in-memory cache
+  const memCached = getFromInMemoryCache(cacheKey);
+  if (memCached) {
+    return memCached;
+  }
+
+  // Fetch fresh data
+  const data = await marketDataService.getDetailedMarketData(symbol);
+  if (data) {
+    // Try to cache in Redis
+    try {
+      const { cacheService } = await import('./cacheService');
+      await cacheService.setPrice(symbol, data);
+    } catch {
+      // Fallback to in-memory
+      setInMemoryCache(cacheKey, data);
+    }
+  }
+
+  return data;
 }
 
 /**
  * Background job to update market data cache
  */
 export async function updateMarketDataCache(symbols: string[]): Promise<void> {
-  // TODO: Implement background cache update with Redis
   console.log(`[MarketData] Updating cache for ${symbols.length} symbols...`);
 
   for (const symbol of symbols) {
     const data = await marketDataService.getDetailedMarketData(symbol);
     if (data) {
-      // Cache in Redis with 60 second TTL
-      // await redis.set(`market:${symbol}`, JSON.stringify(data), 'EX', 60);
+      try {
+        const { cacheService } = await import('./cacheService');
+        await cacheService.setPrice(symbol, data);
+      } catch {
+        setInMemoryCache(`market:price:${symbol}`, data);
+      }
     }
   }
 

@@ -2,7 +2,7 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { APP_TITLE, getLoginUrl } from "@/const";
-import { Shield, Github, Coins, Users, TrendingUp, AlertTriangle } from "lucide-react";
+import { Shield, Github, Coins, Users, TrendingUp, AlertTriangle, Sparkles } from "lucide-react";
 import { Link } from "wouter";
 
 export default function Home() {
@@ -26,6 +26,12 @@ export default function Home() {
             <h1 className="text-2xl font-bold">{APP_TITLE}</h1>
           </div>
           <div className="flex items-center gap-4">
+            <Link href="/unicorn-hunter">
+              <Button variant="ghost" className="text-purple-600 hover:text-purple-700">
+                <Sparkles className="h-4 w-4 mr-2" />
+                Unicorn Hunter
+              </Button>
+            </Link>
             <Link href="/discover">
               <Button variant="ghost">Discover</Button>
             </Link>
@@ -65,9 +71,15 @@ export default function Home() {
             Comprehensive AI-driven analysis of crypto projects. Evaluate GitHub activity, tokenomics, smart contract risks, and community engagement—all in one place.
           </p>
 
-          <div className="flex items-center justify-center gap-4 pt-4">
+          <div className="flex items-center justify-center gap-4 pt-4 flex-wrap">
+            <Link href="/unicorn-hunter">
+              <Button size="lg" className="text-lg px-8 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700">
+                <Sparkles className="h-5 w-5 mr-2" />
+                Hunt Unicorns
+              </Button>
+            </Link>
             <Link href="/discover">
-              <Button size="lg" className="text-lg px-8">
+              <Button size="lg" variant="outline" className="text-lg px-8">
                 Discover Projects
               </Button>
             </Link>

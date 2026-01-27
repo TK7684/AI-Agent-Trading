@@ -22,7 +22,26 @@
       "Bash(psql:*)",
       "Bash(npx drizzle-kit generate:*)",
       "Bash(git remote add:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git branch:*)",
+      "Bash(git push:*)",
+      "Bash(pnpm check:*)",
+      "Bash(npm check)",
+      "Bash(npx tsc:*)",
+      "Bash(npm run check:*)",
+      "Bash(pnpm test)",
+      "Bash(pnpm test:*)",
+      "Bash(pnpm test:e2e:*)",
+      "Bash(ls:*)",
+      "Bash(test:*)",
+      "Bash(pnpm add:*)",
+      "Bash(set:*)",
+      "Bash(start /B cmd /c \"npm run dev > server.log 2>&1\")",
+      "Bash(pnpm exec playwright install:*)",
+      "Bash(dir:*)",
+      "Bash(npx:*)",
+      "Bash(pnpm dev:*)"
     ]
   }
 }

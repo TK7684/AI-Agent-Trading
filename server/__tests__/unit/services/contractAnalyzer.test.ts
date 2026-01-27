@@ -1,6 +1,8 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { analyzeTokenomics, analyzeContractRisk } from '../../../services/contractAnalyzer';
 import { setupGlobalMocks, resetAllMocks } from '../../../../test-utils/mocks';
+import { clearAnalysisCache } from '../../../services/analysisCache';
+
 
 // Create mock fetch
 const mockFetch = vi.fn();
@@ -22,6 +24,9 @@ describe('Contract Analyzer', () => {
     vi.clearAllMocks();
     // Mock global fetch
     vi.stubGlobal('fetch', mockFetch);
+    // Clear analysis cache to prevent cross-test pollution
+    clearAnalysisCache();
+
   });
 
   afterEach(() => {

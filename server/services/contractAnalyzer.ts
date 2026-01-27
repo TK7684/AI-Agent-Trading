@@ -1,4 +1,5 @@
 import { invokeLLM } from "../_core/llm";
+import { getCachedContractAnalysis, setCachedContractAnalysis } from "./analysisCache";
 
 interface TokenomicsApiResponse {
   name: string;
@@ -83,6 +84,12 @@ export async function analyzeTokenomics(
   contractAddress: string,
   chain: string = "ethereum"
 ): Promise<TokenomicsAnalysisResult> {
+  // Check cache first
+  const cached = await getCachedContractAnalysis(contractAddress, chain, 'tokenomics');
+  if (cached) {
+    return cached;
+  }
+
   try {
     // Validate contract address
     if (!contractAddress || !/^0x[a-fA-F0-9]{40}$/.test(contractAddress)) {
@@ -181,13 +188,18 @@ Provide brief analysis covering:
       strengths.push("Token has defined supply");
     }
 
-    return {
+    const result = {
       score,
       data,
       analysis: aiAnalysis,
       issues,
       strengths,
     };
+
+    // Cache the result
+    await setCachedContractAnalysis(contractAddress, chain, 'tokenomics', result);
+
+    return result;
   } catch (error) {
     console.error("Error analyzing tokenomics:", error);
     throw error; // Re-throw to allow tests to catch specific errors
@@ -201,6 +213,12 @@ export async function analyzeContractRisk(
   contractAddress: string,
   chain: string = "ethereum"
 ): Promise<ContractRiskAnalysisResult> {
+  // Check cache first
+  const cached = await getCachedContractAnalysis(contractAddress, chain, 'risk');
+  if (cached) {
+    return cached;
+  }
+
   try {
     // Validate contract address
     if (!contractAddress || !/^0x[a-fA-F0-9]{40}$/.test(contractAddress)) {
@@ -355,13 +373,18 @@ Provide brief security assessment covering:
       ? aiResponse.choices[0].message.content
       : "AI analysis unavailable";
 
-    return {
+    const result = {
       score,
       data,
       analysis: aiAnalysis,
       risks,
       safetyFeatures,
     };
+
+    // Cache the result
+    await setCachedContractAnalysis(contractAddress, chain, 'risk', result);
+
+    return result;
   } catch (error) {
     console.error("Error analyzing contract risk:", error);
     throw error; // Re-throw to allow tests to catch specific errors

@@ -1,0 +1,11 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e4]:
+  - img [ref=e5]
+  - heading "An unexpected error occurred." [level=2] [ref=e7]
+  - generic [ref=e9]: URL@[native code] getLoginUrl@http://localhost:3000/src/const.ts:9:22 useAuth@http://localhost:3000/src/_core/hooks/useAuth.ts:6:72 DiscoverV2@http://localhost:3000/src/pages/DiscoverV2.tsx:17:66 react_stack_bottom_frame@http://localhost:3000/@fs/C:/Users/ttapk/PycharmProjects/pythonProject/Investment%20Auditor/node_modules/.vite/deps/react-dom_client.js:18509:29 renderWithHooks@http://localhost:3000/@fs/C:/Users/ttapk/PycharmProjects/pythonProject/Investment%20Auditor/node_modules/.vite/deps/react-dom_client.js:5654:42 updateFunctionComponent@http://localhost:3000/@fs/C:/Users/ttapk/PycharmProjects/pythonProject/Investment%20Auditor/node_modules/.vite/deps/react-dom_client.js:7475:36 runWithFiberInDEV@http://localhost:3000/@fs/C:/Users/ttapk/PycharmProjects/pythonProject/Investment%20Auditor/node_modules/.vite/deps/react-dom_client.js:999:23 performUnitOfWork@http://localhost:3000/@fs/C:/Users/ttapk/PycharmProjects/pythonProject/Investment%20Auditor/node_modules/.vite/deps/react-dom_client.js:12561:115 workLoopSync@http://localhost:3000/@fs/C:/Users/ttapk/PycharmProjects/pythonProject/Investment%20Auditor/node_modules/.vite/deps/react-dom_client.js:12424:60 renderRootSync@http://localhost:3000/@fs/C:/Users/ttapk/PycharmProjects/pythonProject/Investment%20Auditor/node_modules/.vite/deps/react-dom_client.js:12408:25 performWorkOnRoot@http://localhost:3000/@fs/C:/Users/ttapk/PycharmProjects/pythonProject/Investment%20Auditor/node_modules/.vite/deps/react-dom_client.js:11827:51 performWorkOnRootViaSchedulerTask@http://localhost:3000/@fs/C:/Users/ttapk/PycharmProjects/pythonProject/Investment%20Auditor/node_modules/.vite/deps/react-dom_client.js:13505:26 performWorkUntilDeadline@http://localhost:3000/@fs/C:/Users/ttapk/PycharmProjects/pythonProject/Investment%20Auditor/node_modules/.vite/deps/react-dom_client.js:36:58
+  - button "Reload Page" [ref=e10] [cursor=pointer]:
+    - img [ref=e11]
+    - text: Reload Page
+```

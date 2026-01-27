@@ -4,7 +4,7 @@ import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
 import { createProject, getProjectsByUserId, getProjectById, updateProjectStatus, createAuditReport, getAuditReportByProjectId, updateAuditReport, getDb } from "./db";
-import { projects, auditReports, users } from "../drizzle/schema";
+import { projects, auditReports, users } from '@drizzle/schema';
 import { eq } from "drizzle-orm";
 import { analyzeGitHub } from "./services/githubAnalyzer";
 import { analyzeTokenomics, analyzeContractRisk } from "./services/contractAnalyzer";
@@ -22,12 +22,23 @@ import { marketDataRouter } from "./routers/marketData";
 import { tradingViewRouter } from "./routers/tradingview";
 import { geminiAnalyzer } from "./services/geminiAnalyzer";
 import { checkForTrendingAlerts, formatAlertForDisplay, resetTrendingState } from "./services/trendingAlerts";
+import { securityRouter } from "./routers/security";
+import { chatBotRouter } from "./routers/chatBot";
+import { alertMonitorService } from "./services/alertMonitor";
+import { notificationsRouter } from "./routers/notifications";
+import { subscriptionRouter } from "./routers/subscription";
+import { analyticsRouter } from "./routers/analytics";
 
 export const appRouter = router({
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
   system: systemRouter,
   marketData: marketDataRouter,
   tradingView: tradingViewRouter,
+  security: securityRouter,
+  chat: chatBotRouter,
+  notifications: notificationsRouter,
+  subscription: subscriptionRouter,
+  analytics: analyticsRouter,
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
 
@@ -617,6 +628,18 @@ export const appRouter = router({
       }
     }),
 
+    // Delete an alert
+    delete: protectedProcedure
+      .input(z.object({ alertId: z.number() }))
+      .mutation(async ({ input }) => {
+        try {
+          await disableAlertSetting(input.alertId);
+          return { success: true };
+        } catch (error) {
+          throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Failed to delete alert" });
+        }
+      }),
+
     // Check for new trending alerts
     checkTrending: protectedProcedure.query(async () => {
       try {
@@ -636,6 +659,22 @@ export const appRouter = router({
         throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Failed to reset trending state" });
       }
     }),
+
+    // Get alert monitor status
+    monitorStatus: protectedProcedure.query(() => {
+      return alertMonitorService.getStatus();
+    }),
+
+    // Manually trigger alert check
+    manualCheck: protectedProcedure
+      .input(z.object({ alertIds: z.array(z.number()) }))
+      .mutation(async ({ input }) => {
+        const triggers = await alertMonitorService.manualCheck(input.alertIds);
+        return {
+          triggered: triggers.length,
+          alerts: triggers,
+        };
+      }),
   }),
 
   // ============ UNICORN HUNTER ROUTER ============

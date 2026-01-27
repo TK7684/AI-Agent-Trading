@@ -16,6 +16,16 @@ vi.mock('../../../_core/llm', () => ({
   })
 }));
 
+// Mock the cache service to disable caching in tests
+vi.mock('../../../services/analysisCache', () => ({
+  getCachedGitHubAnalysis: vi.fn(() => null),
+  setCachedGitHubAnalysis: vi.fn(),
+  getCachedMarketData: vi.fn(() => null),
+  setCachedMarketData: vi.fn(),
+  getCachedGoPlusSecurity: vi.fn(() => null),
+  setCachedGoPlusSecurity: vi.fn(),
+}));
+
 describe('GitHub Analyzer', () => {
   beforeEach(() => {
     setupGlobalMocks();

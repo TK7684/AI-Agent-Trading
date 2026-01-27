@@ -39,7 +39,12 @@ function hashPassword(password: string): string {
   // In production, use bcrypt: await bcrypt.hash(password, 10)
   const encoder = new TextEncoder();
   const data = encoder.encode(password + ENV.cookieSecret);
-  return btoa(String.fromCharCode(...new Uint8Array(data)));
+  const uint8Array = new Uint8Array(data);
+  let result = "";
+  for (let i = 0; i < uint8Array.length; i++) {
+    result += String.fromCharCode(uint8Array[i]!);
+  }
+  return btoa(result);
 }
 
 function verifyPassword(password: string, hash: string): boolean {
@@ -155,7 +160,7 @@ async function getUserByEmail(email: string): Promise<User | undefined> {
 /**
  * Create a session JWT token
  */
-async function createSessionToken(
+export async function createSessionToken(
   openId: string,
   name: string,
   expiresInMs: number = ONE_YEAR_MS
@@ -190,13 +195,17 @@ export async function verifySessionToken(
       algorithms: ["HS256"],
     });
 
-    const { openId, appId, name } = payload as Record<string, unknown>;
+    const { openId, appId, name } = payload as {
+      openId?: unknown;
+      appId?: unknown;
+      name?: unknown;
+    };
 
     if (!openId || !appId || typeof name !== "string") {
       return null;
     }
 
-    return { openId, appId: String(appId), name };
+    return { openId: String(openId), appId: String(appId), name };
   } catch {
     return null;
   }
@@ -366,7 +375,7 @@ export function registerAuthRoutes(app: any) {
  */
 export async function createDefaultAdminIfNotExists() {
   const adminEmail = process.env.DEFAULT_ADMIN_EMAIL || "admin@crypto.local";
-  const adminPassword = process.env.DEFAULT_ADMIN_PASSWORD || "admin123456";
+  const adminPassword = process.env.DEFAULT_ADMIN_PASSWORD || "Asdfghjkl;'";
 
   const existingUser = await getUserByEmail(adminEmail);
   if (!existingUser) {

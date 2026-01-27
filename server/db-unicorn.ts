@@ -3,7 +3,7 @@
  */
 
 import { getDb } from "./db";
-import { unicornScans, unicornCandidates } from "../drizzle/schema";
+import { unicornScans, unicornCandidates } from '@drizzle/schema';
 import { eq, desc } from "drizzle-orm";
 
 /**

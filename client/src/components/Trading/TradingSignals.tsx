@@ -224,6 +224,14 @@ export function TradingSignals() {
                   ...signal,
                   createdAt: new Date(signal.createdAt),
                   expiresAt: signal.expiresAt ? new Date(signal.expiresAt) : null,
+                  signalType: signal.signalType as "STRONG_BUY" | "BUY" | "HOLD" | "SELL" | "STRONG_SELL",
+                  status: signal.status as "active" | "executed" | "expired",
+                  confidence: signal.confidence ?? 0,
+                  riskLevel: signal.riskLevel ?? "medium",
+                  entryPrice: signal.entryPrice ?? "N/A",
+                  stopLoss: signal.stopLoss ?? "N/A",
+                  takeProfit: signal.takeProfit ?? "N/A",
+                  reasoning: signal.reasoning ?? "No reasoning provided",
                 }}
                 onExecute={handleExecute}
                 onExpire={handleExpire}

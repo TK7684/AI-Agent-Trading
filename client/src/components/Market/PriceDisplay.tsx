@@ -21,9 +21,15 @@ export function PriceDisplay({ symbol, showDetails = false, refreshInterval = 30
     { symbol, useCache: true },
     {
       refetchInterval: refreshInterval * 1000,
-      onSuccess: () => setLastUpdate(new Date()),
     }
   );
+
+  // Update lastUpdate when data is fetched
+  useEffect(() => {
+    if (priceData) {
+      setLastUpdate(new Date());
+    }
+  }, [priceData]);
 
   if (isLoading) {
     return (

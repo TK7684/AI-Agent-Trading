@@ -103,7 +103,7 @@ export default function Dashboard() {
             <Link href="/discover">
               <Button variant="ghost">Discover</Button>
             </Link>
-            <span className="text-sm text-muted-foreground hidden sm:inline">
+            <span className="text-sm text-muted-foreground hidden sm:inline" data-testid="user-name">
               {user?.name || user?.email}
             </span>
             <Link href="/new-audit">

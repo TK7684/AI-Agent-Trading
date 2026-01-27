@@ -5,6 +5,8 @@ import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
+import LoginPage from "./pages/LoginPage";
+import UnicornHunter from "./pages/UnicornHunter";
 import Dashboard from "./pages/Dashboard";
 import NewAudit from "./pages/NewAudit";
 import AuditDetail from "./pages/AuditDetail";
@@ -17,6 +19,8 @@ function Router() {
   return (
     <Switch>
       <Route path={"/"} component={Home} />
+      <Route path="/login" component={LoginPage} />
+      <Route path="/unicorn-hunter" component={UnicornHunter} />
       <Route path="/discover" component={DiscoverV2} />
       <Route path="/dashboard" component={Dashboard} />
       <Route path="/watchlist" component={Watchlist} />

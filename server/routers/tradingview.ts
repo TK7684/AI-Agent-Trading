@@ -104,25 +104,11 @@ export const tradingViewRouter = router({
       const alertId = alertResult[0].id;
 
       // Try to find associated audit project
-      const project = await db.select().from(projects)
-        .where(eq(projects.symbol, symbol))
-        .limit(1);
-
+      // Note: projects table doesn't have a symbol column, so we skip this lookup
+      // In production, you'd need to add a symbol column to projects or use a different lookup method
       let auditScore: number | null = null;
       let riskLevel: string | null = null;
       let projectId: number | null = null;
-
-      if (project.length > 0) {
-        projectId = project[0].id;
-        const report = await db.select().from(auditReports)
-          .where(eq(auditReports.projectId, project[0].id))
-          .limit(1);
-
-        if (report.length > 0) {
-          auditScore = report[0].overallScore;
-          riskLevel = report[0].riskLevel;
-        }
-      }
 
       // Generate combined signal
       if (action !== "HOLD") {
@@ -222,17 +208,12 @@ export const tradingViewRouter = router({
       const db = await getDb();
       if (!db) return [];
 
-      let query = db.select().from(tradingViewAlerts)
-        .where(eq(tradingViewAlerts.userId, ctx.user.id));
+      const conditions = input.symbol
+        ? and(eq(tradingViewAlerts.userId, ctx.user.id), eq(tradingViewAlerts.symbol, input.symbol))
+        : eq(tradingViewAlerts.userId, ctx.user.id);
 
-      if (input.symbol) {
-        query = query.where(and(
-          eq(tradingViewAlerts.userId, ctx.user.id),
-          eq(tradingViewAlerts.symbol, input.symbol)
-        ));
-      }
-
-      return await query
+      return await db.select().from(tradingViewAlerts)
+        .where(conditions)
         .orderBy(desc(tradingViewAlerts.timestamp))
         .limit(input.limit);
     }),
@@ -249,17 +230,12 @@ export const tradingViewRouter = router({
       const db = await getDb();
       if (!db) return [];
 
-      let query = db.select().from(tradingSignals)
-        .where(eq(tradingSignals.userId, ctx.user.id));
+      const conditions = input.status
+        ? and(eq(tradingSignals.userId, ctx.user.id), eq(tradingSignals.status, input.status))
+        : eq(tradingSignals.userId, ctx.user.id);
 
-      if (input.status) {
-        query = query.where(and(
-          eq(tradingSignals.userId, ctx.user.id),
-          eq(tradingSignals.status, input.status)
-        ));
-      }
-
-      return await query
+      return await db.select().from(tradingSignals)
+        .where(conditions)
         .orderBy(desc(tradingSignals.createdAt))
         .limit(input.limit);
     }),

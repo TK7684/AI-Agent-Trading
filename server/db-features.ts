@@ -6,16 +6,20 @@
  */
 
 import { eq, and } from "drizzle-orm";
-import { drizzle } from "drizzle-orm/mysql2";
-import { watchlist, comparisons, alertSettings, projects } from "../drizzle/schema";
-import { ENV } from "./_core/env";
+import { drizzle } from "drizzle-orm/postgres-js";
+import postgres from "postgres";
+import { watchlist, comparisons, alertSettings, projects } from '@drizzle/schema';
 
 let _db: ReturnType<typeof drizzle> | null = null;
+let _client: postgres.Sql | null = null;
 
 async function getDb() {
   if (!_db && process.env.DATABASE_URL) {
     try {
-      _db = drizzle(process.env.DATABASE_URL);
+      _client = postgres(process.env.DATABASE_URL, {
+        onnotice: () => {}, // Ignore notices
+      });
+      _db = drizzle(_client);
     } catch (error) {
       console.warn("[Database] Failed to connect:", error);
       _db = null;

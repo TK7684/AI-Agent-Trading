@@ -2,6 +2,44 @@
  * Discovery Service - ค้นหาและแนะนำโปรเจกต์คริปโตที่น่าสนใจ
  */
 
+// In-memory cache for discovery results
+const discoveryCache = new Map<string, { data: DiscoveredProject[]; expiry: number }>();
+const CACHE_TTL = 300000; // 5 minutes for trending projects
+
+/**
+ * Clear the discovery cache (for testing)
+ */
+export function clearDiscoveryCache(): void {
+  discoveryCache.clear();
+  console.log('[Discovery] Cache cleared');
+}
+
+/**
+ * Get cached discovery data
+ */
+function getCachedDiscovery(filterKey: string): DiscoveredProject[] | null {
+  const cached = discoveryCache.get(filterKey);
+  if (cached && cached.expiry > Date.now()) {
+    console.log(`[Discovery] Cache hit for ${filterKey}`);
+    return cached.data;
+  }
+  if (cached) {
+    discoveryCache.delete(filterKey);
+  }
+  return null;
+}
+
+/**
+ * Set discovery cache
+ */
+function setDiscoveryCache(filterKey: string, data: DiscoveredProject[]): void {
+  discoveryCache.set(filterKey, {
+    data,
+    expiry: Date.now() + CACHE_TTL,
+  });
+  console.log(`[Discovery] Cached ${data.length} projects for ${filterKey}`);
+}
+
 export interface DiscoveredProject {
   id: string;
   name: string;
@@ -46,6 +84,16 @@ export async function discoverTrendingProjects(filter?: {
   minScore?: number;
   maxMarketCap?: number;
 }): Promise<DiscoveredProject[]> {
+  // Create cache key from filter
+  const cacheKey = JSON.stringify(filter || {});
+
+  // Check cache first
+  const cached = getCachedDiscovery(cacheKey);
+  if (cached) {
+    // Apply filters to cached data
+    return applyFilters(cached, filter);
+  }
+
   try {
     // ใช้ CoinGecko public API (ไม่ต้อง API key)
     const response = await fetch(
@@ -135,27 +183,43 @@ export async function discoverTrendingProjects(filter?: {
     // รวมและเรียงตาม recommendation score
     const allProjects = [...projects, ...earlyStageProjects]
       .sort((a, b) => b.recommendationScore - a.recommendationScore);
-    
-    // ใช้ filter ถ้ามี
-    if (filter?.category) {
-      return allProjects.filter(p => p.category.toLowerCase().includes(filter.category!.toLowerCase()));
-    }
-    if (filter?.status) {
-      return allProjects.filter(p => p.status === filter.status);
-    }
-    if (filter?.minScore) {
-      return allProjects.filter(p => p.recommendationScore >= filter.minScore!);
-    }
-    if (filter?.maxMarketCap) {
-      return allProjects.filter(p => p.marketCap <= filter.maxMarketCap!);
-    }
-    
-    return allProjects;
-    
+
+    // Cache the results
+    setDiscoveryCache(cacheKey, allProjects);
+
+    return applyFilters(allProjects, filter);
+
   } catch (error) {
     console.error("Error discovering projects:", error);
     return getMockProjects();
   }
+}
+
+/**
+ * Apply filters to projects list
+ */
+function applyFilters(projects: DiscoveredProject[], filter?: {
+  category?: string;
+  status?: string;
+  minScore?: number;
+  maxMarketCap?: number;
+}): DiscoveredProject[] {
+  let filtered = projects;
+
+  if (filter?.category) {
+    filtered = filtered.filter(p => p.category.toLowerCase().includes(filter.category!.toLowerCase()));
+  }
+  if (filter?.status) {
+    filtered = filtered.filter(p => p.status === filter.status);
+  }
+  if (filter?.minScore) {
+    filtered = filtered.filter(p => p.recommendationScore >= filter.minScore!);
+  }
+  if (filter?.maxMarketCap) {
+    filtered = filtered.filter(p => p.marketCap <= filter.maxMarketCap!);
+  }
+
+  return filtered;
 }
 
 /**

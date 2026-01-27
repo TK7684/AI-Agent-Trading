@@ -145,6 +145,7 @@ export default function NewAudit() {
                     value={formData.name}
                     onChange={(e) => handleChange("name", e.target.value)}
                     required
+                    data-testid="project-name"
                   />
                 </div>
 
@@ -172,6 +173,7 @@ export default function NewAudit() {
                     placeholder="https://github.com/username/repo"
                     value={formData.githubUrl}
                     onChange={(e) => handleChange("githubUrl", e.target.value)}
+                    data-testid="github-url"
                   />
                 </div>
 
@@ -256,7 +258,7 @@ export default function NewAudit() {
 
               {/* Submit */}
               <div className="pt-4">
-                <Button type="submit" className="w-full" size="lg" disabled={isLoading}>
+                <Button type="submit" className="w-full" size="lg" disabled={isLoading} data-testid="create-project-button">
                   {isLoading ? (
                     <>
                       <Loader2 className="h-4 w-4 mr-2 animate-spin" />
